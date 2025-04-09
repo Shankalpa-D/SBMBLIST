@@ -1,163 +1,93 @@
-# Starbucks Inventory Management System
+# Inventory Management System
 
-This is a web-based inventory management system designed especially for Starbucks. It allows different users (Managers and Leads) to view, update, and manage inventory data for different store locations. The system uses Firebase as its database and leverages client-side authentication via custom password prompts. The inventory interface is user-friendly, and the authentication process is persistent so that you won’t have to enter your passwords on every refresh.
+## Overview
+This project is a simple web-based application that helps stores manage their inventory. It is built to be user-friendly so that even if you don’t know how to code, you can still use it easily. The system helps track items in different inventory categories (like milk, syrups, cups, etc.) and supports different roles for users (Managers, Leads, and Admins).
 
----
+## What It Does
+- **User Roles:**
+  - **Manager:** Has the ability to view and update the inventory for any store. A special manager password is required.
+  - **Lead:** Can manage the inventory for a specific store. Leads must first pick a store and then log in with that store’s password.
+  - **Admin:** Has extra tools to update or reset passwords and can force all users to sign out. Admins use their own password.
 
-## Table of Contents
+- **Inventory Management:**
+  - **View Inventory:** The screen is divided into different categories (e.g., milks, syrups, cups, etc.).
+  - **Add or Remove Items:** You can add a new item or remove an existing item from any category.
+  - **Update Quantities:** Change the numbers next to items to show current stock levels.
+  - **Clear a Category:** If needed, you can clear all the items in a category with just a click (after confirming your decision).
 
-- [Features](#features)
-- [User Roles and Passwords](#user-roles-and-passwords)
-- [How to Use](#how-to-use)
-  - [Accessing the System](#accessing-the-system)
-  - [Manager Mode](#manager-mode)
-  - [Lead Mode](#lead-mode)
-  - [Switch Store](#switch-store)
-  - [Home Button](#home-button)
-- [Functions and Flow](#functions-and-flow)
-- [Firebase Configuration](#firebase-configuration)
-- [File Structure](#file-structure)
-- [Getting Started](#getting-started)
+- **Notes:**
+  - There is a section to write notes. These notes save automatically so you won’t lose them if you change pages.
 
----
+- **Inventory List:**
+  - You can generate a neat list of the current inventory and then copy it to your clipboard. This is useful if you need to share the list or review it later.
 
-## Features
+- **Switch Store:**
+  - If you need to change the store you are working on, you can use the "Switch Store" button. This keeps your role (Manager, Lead, or Admin) intact, but lets you pick a new store.
 
-- **Role Selection:**  
-  On page load, you choose your role: **Manager** or **Lead**.
-
-- **Password Prompts:**  
-  - **Manager Mode:** Requires a single password ("Access") to grant access to all stores without further prompts.  
-  - **Lead Mode:** After selecting the role, you pick a store and then must enter that store’s unique password.
-
-- **Store Selection:**  
-  You can choose between six stores:
-  - HeadHouse
-  - Mobile
-  - D
-  - Baggage
-  - Departures
-  - Connector
-
-- **Inventory Management:**  
-  - Add, update, and remove items in multiple inventory categories (e.g., milks, syrups, cups, etc.).
-  - Generate a list of current inventory.
-  - Copy the generated inventory list to your clipboard.
-  - Clear individual sections or the entire inventory.
-
-- **Notes Section:**  
-  Save notes that are stored in the database.
-
-- **Persistent Session:**  
-  Your role and store selection are saved in your browser (using localStorage), so you don’t need to reenter passwords when you refresh the page.
-
-- **Navigation Buttons:**  
-  - **Switch Store:** Easily switch to another store (with appropriate authentication if you’re in Lead mode).
-  - **Home Button:** Return to the initial role selection screen.
-
----
-
-## User Roles and Passwords
-
-### Manager
-- **Manager Password:** `Access`  
-  - **Access:** Allows managers full access to all stores without needing further password prompts.
-
-### Lead
-In Lead mode, you first select a store, then you must enter the corresponding store password:
-
-- **HeadHouse:** `0101`
-- **Mobile:** `0000`
-- **D:** `1010`
-- **Baggage:** `1111`
-- **Departures:** `1110`
-- **Connector:** `0001`
-
----
+- **Admin Tools:**
+  - If you log in as an Admin, you can update the passwords for Managers and for each store.
+  - There is also an option to reset all passwords to their default settings.
+  - The Admin can sign out all users if necessary.
 
 ## How to Use
+1. **Open the Application:**
+   - Open the file named `index.html` in your web browser (such as Chrome or Firefox).
 
-### Accessing the System
+2. **Select Your Role:**
+   - When you first load the app, you will see buttons for Manager, Lead, and Admin. Click the button that matches your role.
 
-1. Open the application in your web browser.
-2. You will see a **Role Selection** page with a Starbucks-themed background.  
-   - Two buttons are presented at the bottom: **Manager** (green) on the top and **Lead** (white with border) below.
+3. **Log In:**
+   - Enter the password required for your role:
+     - **Managers** and **Admins** have their own passwords.
+     - **Leads** must first choose a store (from a list) and then enter the password for that store.
 
-### Manager Mode
+4. **Manage Inventory:**
+   - Once you are logged in, you will see the inventory for the selected store.
+   - You can adjust the numbers (quantities) for each item.
+   - Use the “Add Item” button to add new inventory items.
+   - Remove items or clear an entire category with the provided buttons (each action asks for a confirmation).
 
-1. Click the **Manager** button.
-2. A Manager Password prompt appears in a friendly card-style overlay.
-3. Enter the password: **Access**
-4. Click the check-mark (OK) button or press *Enter*.
-5. Once authenticated, you will see a store selection page. Here, you can choose any store from the available six.
-6. After selecting a store, the inventory page loads where you can manage items, generate lists, take notes, etc.
+5. **Write Notes:**
+   - Type any notes in the notes section. These notes save automatically, so you won’t lose your work.
 
-### Lead Mode
+6. **Generate and Copy the Inventory List:**
+   - Click the “Generate List” button to create a text list of the current inventory.
+   - Then click “Copy List” to copy this text so you can paste it elsewhere.
 
-1. Click the **Lead** button.
-2. You will be taken directly to the Store Selection page.
-3. Choose the store you want to access.
-4. A Store Password prompt appears; enter the store’s unique password (see above for the store passwords).
-5. After successful entry, the inventory page loads with data specific to that store.
-6. If you try to switch stores from the inventory page as a Lead, you will again be prompted for the new store’s password.
+7. **Switch Store:**
+   - If you need to work on a different store, click the “Switch Store” button.
+   - This will clear the current store selection (while keeping your role) and show you the store selection screen again.
 
-### Switch Store
+8. **Admin Panel (Admins Only):**
+   - If you are an Admin, after logging in you will see extra controls:
+     - Update passwords for Managers or for individual stores.
+     - Reset all passwords back to the default values.
+     - Sign out all users if needed.
 
-- **Managers:** Can click the "Switch Store" button (located at the top-right) without any further password prompts.
-- **Leads:** When clicking "Switch Store", you will be directed to the Store Selection page. When selecting a new store, you will be prompted for its password.
+## What You Need
+- **A Computer with a Web Browser:** Such as Chrome, Firefox, etc.
+- **Internet Connection:** The app uses the internet to store and retrieve data.
+- **Firebase Setup (For the Developer/Administrator):**
+  - The project uses [Firebase Realtime Database](https://firebase.google.com/products/realtime-database) for data storage.
+  - To use the app with your own settings, update the Firebase configuration in the `script.js` file.
 
-### Home Button
+## Folder Structure
+The project includes three main files:
 
-- The Home button appears on every overlay and in the main application page. Click it to reset the session and go back to the Role Selection page. This will clear any persistent session stored in your browser.
 
----
 
-## Functions and Flow
+## In Short
+The Inventory Management System is built for ease of use:
+- Choose your role and log in.
+- Manage and update your store’s inventory.
+- Write and save notes.
+- Generate a list of items.
+- Switch between stores without needing to restart everything.
+- Admins have extra controls for password management.
 
-### Main Functions
+This system is designed so you can focus on managing your inventory, even if you are not familiar with coding.
 
-- **renderInventoryUI():**  
-  Dynamically creates the inventory user interface and fills it with predefined categories and items.
 
-- **loadInitialData():**  
-  Loads inventory data from Firebase for the selected store and updates the UI.
-
-- **setupNotes():**  
-  Loads and saves the notes section for the current store in real time.
-
-- **generateInventoryList():**  
-  Creates a text list of all inventory items that have a value, allowing you to review the inventory in text form.
-
-- **copyInventoryList():**  
-  Copies the generated list to your clipboard.
-
-- **clearInventory() & clearSection():**  
-  Allow clearing the entire inventory or individual sections.
-
-### Authentication Flow
-
-1. **Role Selection:**  
-   - User chooses either Manager or Lead.
-
-2. **Manager Authentication:**  
-   - Manager mode shows a password prompt.
-   - Once entered correctly, the manager selects a store (without additional password prompts).
-
-3. **Lead Authentication:**  
-   - In Lead mode, user selects a store directly.
-   - A store password prompt appears; the user must enter the correct password for that store.
-
-4. **Persistent Session:**  
-   - Upon successful authentication, the role and store are saved in localStorage.
-   - On page refresh, the stored values are used to auto-login the user and load the inventory page.
-
----
-
-## Firebase Configuration
-
-This system uses Firebase Realtime Database to store inventory data and notes. Make sure you have set up your Firebase project and configured your `firebaseConfig` in the code. Replace the firebaseConfig values with your own if necessary.
-
----
 
 ## Passwords For Leads
 
