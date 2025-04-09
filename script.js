@@ -74,7 +74,7 @@ const firebaseConfig = {
     Departures: "1110",
     Connector: "0001"
   };
-  const DEFAULT_ADMIN_PASSWORD = "DUWADI";
+  const DEFAULT_ADMIN_PASSWORD = "Admin";
   
   // Global variables for hashed passwords (will be set on load)
   let managerPassword = "";
@@ -564,6 +564,20 @@ const firebaseConfig = {
     setupNotes();
     setupEventListeners();
   }
+  
+  // --- FIXED: Switch Store Button ---
+  // This event listener clears the current store selection and shows the store selection overlay.
+  document.getElementById('switch-store-btn').addEventListener('click', async function() {
+    if (await customConfirm("Switch store? Unsaved changes might be lost.")) {
+      // Clear the existing store selection.
+      localStorage.removeItem("selectedStore");
+      selectedStore = "";
+      // Hide the main container.
+      document.getElementById('main-container').style.display = 'none';
+      // Display the store selection overlay.
+      document.getElementById('store-selection').style.display = 'flex';
+    }
+  });
   
   // Global Sign Out Listener
   database.ref('global/signOutTrigger').on('value', (snapshot) => {
