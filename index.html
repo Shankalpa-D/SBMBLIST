@@ -1,0 +1,133 @@
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuFjeruJPdkDLUOazyA_BzpTKA1SWT4bw",
+      authDomain: "inventory-d35b5.firebaseapp.com",
+      projectId: "inventory-d35b5",
+      storageBucket: "inventory-d35b5.firebasestorage.app",
+      messagingSenderId: "512369551549",
+      appId: "1:512369551549:web:0a8ba6d030fdad8c392fd4",
+      measurementId: "G-0NYHYLDQED",
+      databaseURL: "https://inventory-d35b5-default-rtdb.firebaseio.com"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+  
+    const categories = { /* same as before */ };
+  
+    const createInput = (cat, item) => {
+      const div = document.createElement("div");
+      div.className = "item-row";
+      const label = document.createElement("label");
+      label.innerText = item + ": ";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.addEventListener("input", () => {
+        set(ref(db, `${cat}/items/${item}`), input.value);
+      });
+      const removeBtn = document.createElement("button");
+      removeBtn.innerText = "✖";
+      removeBtn.className = "remove";
+      removeBtn.addEventListener("click", () => {
+        set(ref(db, `${cat}/items/${item}`), "");
+        input.value = "";
+      });
+      div.append(label, input, removeBtn);
+      return div;
+    };
+  
+    const preloadDefaults = async () => {
+      for (const cat in categories) {
+        const catRef = ref(db, `${cat}/items`);
+        const snap = await get(catRef);
+        const existingItems = snap.exists() ? snap.val() : {};
+        for (const item of categories[cat]) {
+          if (!(item in existingItems)) {
+            await set(ref(db, `${cat}/items/${item}`), "");
+          }
+        }
+      }
+    };
+  
+    const initUI = () => {
+      const container = document.getElementById("inventory");
+      for (const cat in categories) {
+        const section = document.createElement("section");
+        const h3 = document.createElement("h3");
+        h3.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+        section.appendChild(h3);
+        const catRef = ref(db, `${cat}/items`);
+        onValue(catRef, (snapshot) => {
+          const data = snapshot.val() || {};
+          section.querySelectorAll(".item-row").forEach(el => el.remove());
+          Object.keys(data).forEach(item => {
+            const inputBlock = createInput(cat, item);
+            inputBlock.classList.add("item-row");
+            section.insertBefore(inputBlock, section.lastElementChild);
+            const input = inputBlock.querySelector("input");
+            input.value = data[item];
+          });
+        });
+  
+        const addInput = document.createElement("input");
+        addInput.placeholder = "New Item Name";
+        const addBtn = document.createElement("button");
+        addBtn.textContent = "Add Item";
+        addBtn.addEventListener("click", () => {
+          const newItem = addInput.value.trim();
+          if (!newItem) return;
+          set(ref(db, `${cat}/items/${newItem}`), "");
+          addInput.value = "";
+        });
+        const addWrapper = document.createElement("div");
+        addWrapper.className = "add-wrapper";
+        addWrapper.appendChild(addInput);
+        addWrapper.appendChild(addBtn);
+        section.appendChild(addWrapper);
+        container.appendChild(section);
+      }
+    };
+  
+    const setupButtons = () => {
+      document.getElementById("generate").addEventListener("click", async () => {
+        const snapshot = await fetch(`https://inventory-d35b5-default-rtdb.firebaseio.com/.json`).then(r => r.json());
+        let list = "";
+        for (const cat in snapshot) {
+          const data = snapshot[cat]?.items || {};
+          const entries = Object.entries(data).filter(([_, v]) => v);
+          if (entries.length === 0) continue;
+          list += `\n${cat.charAt(0).toUpperCase() + cat.slice(1)}:`;
+          entries.forEach(([item, val]) => {
+            list += `\n${item}  ${val}`;
+          });
+          list += "\n";
+        }
+        document.getElementById("result").textContent = list.trim();
+      });
+  
+      document.getElementById("copy").addEventListener("click", () => {
+        const text = document.getElementById("result").textContent;
+        navigator.clipboard.writeText(text);
+      });
+  
+      document.getElementById("clear").addEventListener("click", async () => {
+        const snapshot = await fetch(`https://inventory-d35b5-default-rtdb.firebaseio.com/.json`).then(r => r.json());
+        for (const cat in snapshot) {
+          const items = snapshot[cat]?.items || {};
+          for (const item in items) {
+            set(ref(db, `${cat}/items/${item}`), "");
+          }
+        }
+      });
+    };
+  
+    window.addEventListener("DOMContentLoaded", async () => {
+      await preloadDefaults();
+      initUI();
+      setupButtons();
+    });
+  </script>
+  
