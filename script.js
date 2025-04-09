@@ -74,7 +74,7 @@ const firebaseConfig = {
     Departures: "1110",
     Connector: "0001"
   };
-  const DEFAULT_ADMIN_PASSWORD = "Admin";
+  const DEFAULT_ADMIN_PASSWORD = "DUWADI";
   
   // Global variables for hashed passwords (will be set on load)
   let managerPassword = "";
