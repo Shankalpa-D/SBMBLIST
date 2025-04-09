@@ -1,712 +1,799 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <style>
-        :root {
-            --primary-color: #006341;
-            --secondary-color: #d4e9e2;
-            --accent-color: #1e3932;
-            --light-color: #f9f9f9;
-            --dark-color: #2b2b2b;
-            --error-color: #d62b1f;
-            --success-color: #4caf50;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --primary-color: #006341;
+      --secondary-color: #d4e9e2;
+      --accent-color: #1e3932;
+      --light-color: #f9f9f9;
+      --dark-color: #2b2b2b;
+      --error-color: #d62b1f;
+      --success-color: #4caf50;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            color: var(--dark-color);
-            background-color: var(--light-color);
-            padding: 20px;
-        }
+    body {
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.6;
+      color: var(--dark-color);
+      background-color: var(--light-color);
+      padding: 20px;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+    /* ---------- Password Screen Styles ---------- */
+    #password-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    #password-screen form {
+      width: 100%;
+      text-align: center;
+    }
+    #password-screen input#password-input {
+      font-size: 2rem;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      text-align: center;
+      outline: none;
+    }
 
-        .inventory-section {
-            grid-column: 1;
-        }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
 
-        .daily-log-section {
-            grid-column: 2;
-        }
+    h1 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+    }
 
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 700;
-            grid-column: 1 / -1;
-        }
+    .categories {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
 
-        .categories {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+    .category {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      transition: transform 0.3s ease;
+    }
 
-        .category {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            transition: transform 0.3s ease;
-        }
+    .category:hover {
+      transform: translateY(-5px);
+    }
 
-        .category:hover {
-            transform: translateY(-5px);
-        }
+    .category h2 {
+      color: var(--accent-color);
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--secondary-color);
+      font-size: 1.2rem;
+    }
 
-        .category h2 {
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--secondary-color);
-            font-size: 1.2rem;
-        }
+    .item-list {
+      list-style: none;
+      margin-bottom: 15px;
+    }
 
-        .item-list {
-            list-style: none;
-            margin-bottom: 15px;
-        }
+    .item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
 
-        .item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+    .item-label {
+      width: 150px;
+      font-size: 0.9rem;
+      margin-right: 10px;
+    }
 
-        .item-label {
-            width: 150px;
-            font-size: 0.9rem;
-            margin-right: 10px;
-        }
+    .item-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
 
-        .item-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
+    .item-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
 
-        .item-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
+    .item-actions {
+      display: flex;
+      margin-left: 10px;
+    }
 
-        .item-actions {
-            display: flex;
-            margin-left: 10px;
-        }
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
 
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-        }
+    .btn-add {
+      background-color: var(--success-color);
+      color: white;
+      margin-right: 5px;
+    }
 
-        .btn-add {
-            background-color: var(--success-color);
-            color: white;
-            margin-right: 5px;
-        }
+    .btn-add:hover {
+      background-color: #3d8b40;
+    }
 
-        .btn-add:hover {
-            background-color: #3d8b40;
-        }
+    .btn-remove {
+      background-color: var(--error-color);
+      color: white;
+    }
 
-        .btn-remove {
-            background-color: var(--error-color);
-            color: white;
-        }
+    .btn-remove:hover {
+      background-color: #bb241a;
+    }
 
-        .btn-remove:hover {
-            background-color: #bb241a;
-        }
+    .section-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
 
-        .section-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
+    .clear-section {
+      background-color: #f8f8f8;
+      color: var(--error-color);
+      border: 1px solid var(--error-color);
+    }
 
-        .clear-section {
-            background-color: #f8f8f8;
-            color: var(--error-color);
-            border: 1px solid var(--error-color);
-        }
+    .clear-section:hover {
+      background-color: #f0f0f0;
+    }
 
-        .clear-section:hover {
-            background-color: #f0f0f0;
-        }
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 30px 0;
+    }
 
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-            grid-column: 1 / -1;
-        }
+    .action-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
 
-        .action-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
+    .generate-btn {
+      background-color: var(--primary-color);
+      color: white;
+    }
 
-        .generate-btn {
-            background-color: var(--primary-color);
-            color: white;
-        }
+    .generate-btn:hover {
+      background-color: #004d33;
+    }
 
-        .generate-btn:hover {
-            background-color: #004d33;
-        }
+    .copy-btn {
+      background-color: var(--accent-color);
+      color: white;
+    }
 
-        .copy-btn {
-            background-color: var(--accent-color);
-            color: white;
-        }
+    .copy-btn:hover {
+      background-color: #0f2a22;
+    }
 
-        .copy-btn:hover {
-            background-color: #0f2a22;
-        }
+    .clear-btn {
+      background-color: var(--error-color);
+      color: white;
+    }
 
-        .clear-btn {
-            background-color: var(--error-color);
-            color: white;
-        }
+    .clear-btn:hover {
+      background-color: #bb241a;
+    }
 
-        .clear-btn:hover {
-            background-color: #bb241a;
-        }
+    .output {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      white-space: pre-wrap;
+      font-family: monospace;
+      min-height: 100px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
 
-        .output {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            white-space: pre-wrap;
-            font-family: monospace;
-            min-height: 100px;
-            max-height: 400px;
-            overflow-y: auto;
-            grid-column: 1 / -1;
-        }
+    .output-title {
+      color: var(--accent-color);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
 
-        .output-title {
-            color: var(--accent-color);
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
+    .notes-section {
+      margin-top: 30px;
+    }
 
-        .daily-log {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+    .notes-title {
+      color: var(--accent-color);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
 
-        .daily-log h2 {
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--secondary-color);
-            font-size: 1.2rem;
-        }
+    .notes-textarea {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 1rem;
+      resize: none;
+      min-height: 150px;
+      margin-bottom: 15px;
+    }
 
-        .daily-log-textarea {
-            flex: 1;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Roboto', sans-serif;
-            font-size: 1rem;
-            resize: none;
-            margin-bottom: 15px;
-        }
+    .notes-textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
 
-        .daily-log-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
+    .save-notes-btn {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
 
-        .save-log-btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
+    .save-notes-btn:hover {
+      background-color: #004d33;
+    }
 
-        .save-log-btn:hover {
-            background-color: #004d33;
-        }
+    /* Switch Store Button */
+    .switch-store-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 5px 10px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease;
+    }
+    .switch-store-btn:hover {
+      background-color: #0f2a22;
+    }
 
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .action-btn {
-                width: 100%;
-                max-width: 300px;
-            }
+    @media (max-width: 768px) {
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .action-btn {
+        width: 100%;
+        max-width: 300px;
+      }
 
-            .item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+      .item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-            .item-label {
-                width: 100%;
-                margin-bottom: 5px;
-            }
+      .item-label {
+        width: 100%;
+        margin-bottom: 5px;
+      }
 
-            .item-input {
-                width: 100%;
-            }
-        }
-    </style>
+      .item-input {
+        width: 100%;
+      }
+    }
+
+    /* ---------- Enhanced Store Selection Overlay ---------- */
+    #store-selection {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #store-selection .store-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    #store-selection h2 {
+      margin-bottom: 20px;
+      color: var(--accent-color);
+      font-size: 1.5rem;
+    }
+
+    #store-selection .store-btn {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: white;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    #store-selection .store-btn:hover {
+      background-color: #004d33;
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Inventory Management System</h1>
-        
-        <div class="inventory-section">
-            <div class="categories" id="categories-container">
-                <!-- Categories will be dynamically inserted here -->
-            </div>
-        </div>
-        
-        <div class="daily-log-section">
-            <div class="daily-log">
-                <h2>Daily To-Do Log</h2>
-                <textarea class="daily-log-textarea" id="daily-log-textarea" placeholder="Enter daily tasks and notes here..."></textarea>
-                <button class="save-log-btn" id="save-log-btn">Save Log</button>
-            </div>
-        </div>
-        
-        <div class="action-buttons">
-            <button class="action-btn generate-btn" id="generate-btn">Generate List</button>
-            <button class="action-btn copy-btn" id="copy-btn">Copy List</button>
-            <button class="action-btn clear-btn" id="clear-btn">Clear All</button>
-        </div>
-        
-        <div class="output">
-            <div class="output-title">Generated List:</div>
-            <div id="output-content"></div>
-        </div>
+  <!-- Password Overlay -->
+  <div id="password-screen">
+    <form id="password-form">
+      <input type="password" id="password-input" placeholder="password" autofocus />
+    </form>
+  </div>
+
+  <!-- Store Selection Overlay -->
+  <div id="store-selection" style="display: none;">
+    <div class="store-container">
+      <h2>Select a Store</h2>
+      <button class="store-btn" data-store="Connector">Connector</button>
+      <button class="store-btn" data-store="HeadHouse">HeadHouse</button>
+      <button class="store-btn" data-store="Mobile">Mobile</button>
+      <button class="store-btn" data-store="D">D</button>
+      <button class="store-btn" data-store="Departures">Departures</button>
+      <button class="store-btn" data-store="Baggage">Baggage</button>
     </div>
+  </div>
 
-    <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDuFjeruJPdkDLUOazyA_BzpTKA1SWT4bw",
-            authDomain: "inventory-d35b5.firebaseapp.com",
-            databaseURL: "https://inventory-d35b5-default-rtdb.firebaseio.com",
-            projectId: "inventory-d35b5",
-            storageBucket: "inventory-d35b5.firebasestorage.app",
-            messagingSenderId: "512369551549",
-            appId: "1:512369551549:web:0a8ba6d030fdad8c392fd4",
-            measurementId: "G-0NYHYLDQED"
-        };
+  <div class="container">
+    <button id="switch-store-btn" class="switch-store-btn">Switch Store</button>
+    <h1 id="main-heading">Inventory Management System</h1>
+    
+    <div class="categories" id="categories-container">
+      <!-- Categories will be dynamically inserted here -->
+    </div>
+    
+    <div class="action-buttons">
+      <button class="action-btn generate-btn" id="generate-btn">Generate List</button>
+      <button class="action-btn copy-btn" id="copy-btn">Copy List</button>
+      <button class="action-btn clear-btn" id="clear-btn">Clear All</button>
+    </div>
+    
+    <div class="output">
+      <div class="output-title">Generated List:</div>
+      <div id="output-content"></div>
+    </div>
+    
+    <div class="notes-section">
+      <div class="notes-title">Notes:</div>
+      <textarea class="notes-textarea" id="notes-textarea" placeholder="Enter your notes here..."></textarea>
+      <button class="save-notes-btn" id="save-notes-btn">Save Notes</button>
+    </div>
+  </div>
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+  <script>
+    // --------- Password Check ----------
+    document.getElementById('password-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('password-input').value;
+      if (pwd === '0000') {
+        // Hide password overlay and show the store selection overlay
+        document.getElementById('password-screen').style.display = 'none';
+        document.getElementById('store-selection').style.display = 'flex';
+      } else {
+        alert('Incorrect password.');
+        document.getElementById('password-input').value = '';
+      }
+    });
 
-        // Inventory data structure
-        const inventoryCategories = {
-            milks: [
-                "2%", "Whole Milk", "Nonfat", "Half n Half", "Heavy Cream",
-                "Oatmilk", "Almond Milk", "Coconut Milk", "Soymilk", "Nondairy Vanilla Creamer"
-            ],
-            syrups: [
-                "Vanilla", "SF Vanilla", "Caramel", "Classic", "Brown Sugar", "Cinamon Dolce",
-                "Toffee Nut", "Hazelnut", "Honey", "Apple Brown Sugar", "Pepppermint",
-                "Pecan", "Chai", "Coffee Base", "Creme Base", "Dark Caramel", "White Mocha",
-                "Pumpkin Sauce"
-            ],
-            cups: [
-                "Short Cups (8oz)", "Shot Cup Lids (8oz)", "Tall Hot Cups (12oz)",
-                "Tall Hot Lids (12oz)", "Tall Ice Cups (12oz)", "Tall Ice Lids (12oz)",
-                "Grande Hot Cups (16oz)", "Grande Hot Lids (16oz)", "Grande Ice Cups (16oz)",
-                "Grande Ice Lids (16oz)", "Grande Dome Lids", "Venti Hot Cups (20oz)",
-                "Venti Hot Lids (20oz)", "Venti Ice Cups (26oz)", "Venti Ice Lids (26oz)",
-                "Venti Dome Lids", "Trenta Cups (30oz)", "Trenta Lids (30oz)"
-            ],
-            rtd: [
-                "Thats it Bars (blueberry)", "Thats it Bars (mango)", "SkinnyDip (lemon)",
-                "SkinnyDip (chocolate)", "Kind Bars", "Perfect Bars (chocolate)",
-                "Perfect Bars (pb)", "Vanilla Almond Biscoti", "Cheese Trio Bistro",
-                "Cheddar & Salami Bistro", "Egg Gouda Bistro", "Horizon Lowfat Milk",
-                "Horizon Chocolate Milk", "Apple Juice Box", "Peter Rabbit Strawberry Banana",
-                "TripleShot Energy", "Koia Vanilla Bean", "Koia Cacao Bean",
-                "Olipop Classic Root Beer", "Olipop Grape", "Starbucks Popcorn",
-                "Salted Chips", "Ethos"
-            ],
-            warming: [
-                "Core Warming Bag", "Pastry Bag", "Panini Bag", "Warming Paper", "Forks",
-                "Spoons", "Knives", "Egg Trays", "Oatmeal", "Oatmeal (cup)", "Oatmeal(lid)",
-                "Sugar in raw", "Honey Packets", "Splenda", "Stevia", "Domino Sugar",
-                "Core Shopping Bags (small)", "Core Shopping Bags(Medium)"
-            ],
-            toppings: [
-                "Crunch Toppings", "Cookie Crumbles", "Cinnamon", "Pumpkin"
-            ],
-            refresher: [
-                "Strawberry Acai", "Mango DF", "BlackBerry Sage", "Strawberry Inclusions",
-                "Mango DF Inclusions", "Blackberry Sage Inclusions", "Peach", "Lemonade",
-                "Strawberry Puree"
-            ],
-            coffee: [
-                "Pike Place", "Veranda", "Verona", "Espresso", "Blonde Espresso",
-                "DCF Espresso", "Cold Brew", "Iced Coffee"
-            ],
-            teas: [
-                "Chamomile Mint Blossom", "Mint Majesty", "Emperor's Cloud & Mist",
-                "English Breakfast", "Earl Grey", "Chai", "Ice Black Tea", "Ice Green Tea",
-                "Ice Passion Tea"
-            ],
-            cleaning: [
-                "Saniwipes", "Rags", "Thermoplan Pills", "Oven Cleaner", "Grease Express",
-                "Restroom Cleaner", "InstaSense Multi-Purpose Cleaner", "K-5 Cleaner/Sanitizer",
-                "Urn Cleaner", "Peroxide Multi Surface Cleaner and Disinfectant",
-                "Sanitizing Wash n Walk", "Sink and Surface Cleaner Sanitizer",
-                "10-Inch Paper Tower Roll", "Starbucks Napkins", "Trifold Napkins",
-                "Ecolab Foam Hand Soap"
-            ],
-            misc: [
-                "Vanilla Bean Powder", "Matcha", "Chocolate Malt Powder", "Mocha",
-                "Frap Chips", "Caramel Drizzle", "Sleeves", "Cup Holders", "Thermometers",
-                "Cold Brew Filters", "Coffee Filters", "Whip Chargers", "Brillo Pads"
-            ],
-            merch: [
-                "Discovery Mugs", "Coffee Bags"
-            ]
-        };
+    // --------- Firebase Initialization ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuFjeruJPdkDLUOazyA_BzpTKA1SWT4bw",
+      authDomain: "inventory-d35b5.firebaseapp.com",
+      databaseURL: "https://inventory-d35b5-default-rtdb.firebaseio.com",
+      projectId: "inventory-d35b5",
+      storageBucket: "inventory-d35b5.firebasestorage.app",
+      messagingSenderId: "512369551549",
+      appId: "1:512369551549:web:0a8ba6d030fdad8c392fd4",
+      measurementId: "G-0NYHYLDQED"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            renderInventoryUI();
-            loadInitialData();
-            setupDailyLog();
-            setupEventListeners();
+    // Global variable to hold the selected store
+    let selectedStore = "";
+
+    // Inventory data structure remains unchanged
+    const inventoryCategories = {
+      milks: [
+        "2%", "Whole Milk", "Nonfat", "Half n Half", "Heavy Cream",
+        "Oatmilk", "Almond Milk", "Coconut Milk", "Soymilk", "Nondairy Vanilla Creamer"
+      ],
+      syrups: [
+        "Vanilla", "SF Vanilla", "Caramel", "Classic", "Brown Sugar", "Cinamon Dolce",
+        "Toffee Nut", "Hazelnut", "Honey", "Apple Brown Sugar", "Pepppermint",
+        "Pecan", "Chai", "Coffee Base", "Creme Base", "Dark Caramel", "White Mocha",
+        "Pumpkin Sauce"
+      ],
+      cups: [
+        "Short Cups (8oz)", "Shot Cup Lids (8oz)", "Tall Hot Cups (12oz)",
+        "Tall Hot Lids (12oz)", "Tall Ice Cups (12oz)", "Tall Ice Lids (12oz)",
+        "Grande Hot Cups (16oz)", "Grande Hot Lids (16oz)", "Grande Ice Cups (16oz)",
+        "Grande Ice Lids (16oz)", "Grande Dome Lids", "Venti Hot Cups (20oz)",
+        "Venti Hot Lids (20oz)", "Venti Ice Cups (26oz)", "Venti Ice Lids (26oz)",
+        "Venti Dome Lids", "Trenta Cups (30oz)", "Trenta Lids (30oz)"
+      ],
+      rtd: [
+        "Thats it Bars (blueberry)", "Thats it Bars (mango)", "SkinnyDip (lemon)",
+        "SkinnyDip (chocolate)", "Kind Bars", "Perfect Bars (chocolate)",
+        "Perfect Bars (pb)", "Vanilla Almond Biscoti", "Cheese Trio Bistro",
+        "Cheddar & Salami Bistro", "Egg Gouda Bistro", "Horizon Lowfat Milk",
+        "Horizon Chocolate Milk", "Apple Juice Box", "Peter Rabbit Strawberry Banana",
+        "TripleShot Energy", "Koia Vanilla Bean", "Koia Cacao Bean",
+        "Olipop Classic Root Beer", "Olipop Grape", "Starbucks Popcorn",
+        "Salted Chips", "Ethos"
+      ],
+      warming: [
+        "Core Warming Bag", "Pastry Bag", "Panini Bag", "Warming Paper", "Forks",
+        "Spoons", "Knives", "Egg Trays", "Oatmeal", "Oatmeal (cup)", "Oatmeal(lid)",
+        "Sugar in raw", "Honey Packets", "Splenda", "Stevia", "Domino Sugar",
+        "Core Shopping Bags (small)", "Core Shopping Bags(Medium)"
+      ],
+      toppings: [
+        "Crunch Toppings", "Cookie Crumbles", "Cinnamon", "Pumpkin"
+      ],
+      refresher: [
+        "Strawberry Acai", "Mango DF", "BlackBerry Sage", "Strawberry Inclusions",
+        "Mango DF Inclusions", "Blackberry Sage Inclusions", "Peach", "Lemonade",
+        "Strawberry Puree"
+      ],
+      coffee: [
+        "Pike Place", "Veranda", "Verona", "Espresso", "Blonde Espresso",
+        "DCF Espresso", "Cold Brew", "Iced Coffee"
+      ],
+      teas: [
+        "Chamomile Mint Blossom", "Mint Majesty", "Emperor's Cloud & Mist",
+        "English Breakfast", "Earl Grey", "Chai", "Ice Black Tea", "Ice Green Tea",
+        "Ice Passion Tea"
+      ],
+      cleaning: [
+        "Saniwipes", "Rags", "Thermoplan Pills", "Oven Cleaner", "Grease Express",
+        "Restroom Cleaner", "InstaSense Multi-Purpose Cleaner", "K-5 Cleaner/Sanitizer",
+        "Urn Cleaner", "Peroxide Multi Surface Cleaner and Disinfectant",
+        "Sanitizing Wash n Walk", "Sink and Surface Cleaner Sanitizer",
+        "10-Inch Paper Tower Roll", "Starbucks Napkins", "Trifold Napkins",
+        "Ecolab Foam Hand Soap"
+      ],
+      misc: [
+        "Vanilla Bean Powder", "Matcha", "Chocolate Malt Powder", "Mocha",
+        "Frap Chips", "Caramel Drizzle", "Sleeves", "Cup Holders", "Thermometers",
+        "Cold Brew Filters", "Coffee Filters", "Whip Chargers", "Brillo Pads"
+      ],
+      merch: [
+        "Discovery Mugs", "Coffee Bags"
+      ]
+    };
+
+    // ---------- Inventory and Notes Functions ----------
+    function renderInventoryUI() {
+      const container = document.getElementById('categories-container');
+      container.innerHTML = '';
+
+      for (const category in inventoryCategories) {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category';
+        
+        const categoryTitle = document.createElement('h2');
+        categoryTitle.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+        categoryDiv.appendChild(categoryTitle);
+        
+        const itemList = document.createElement('ul');
+        itemList.className = 'item-list';
+        itemList.id = `${category}-list`;
+        
+        // Add all items for this category
+        inventoryCategories[category].forEach(item => {
+          const listItem = createInventoryItem(category, item);
+          itemList.appendChild(listItem);
         });
+        
+        categoryDiv.appendChild(itemList);
+        
+        // Section actions: Add Item & Clear Section
+        const sectionActions = document.createElement('div');
+        sectionActions.className = 'section-actions';
+        
+        const addButton = document.createElement('button');
+        addButton.className = 'btn btn-add';
+        addButton.textContent = 'Add Item';
+        addButton.onclick = () => addNewItem(category);
+        
+        const clearButton = document.createElement('button');
+        clearButton.className = 'btn clear-section';
+        clearButton.textContent = 'Clear Section';
+        clearButton.onclick = () => clearSection(category);
+        
+        sectionActions.appendChild(addButton);
+        sectionActions.appendChild(clearButton);
+        categoryDiv.appendChild(sectionActions);
+        
+        container.appendChild(categoryDiv);
+      }
+    }
 
-        // Render the inventory UI with all items
-        function renderInventoryUI() {
-            const container = document.getElementById('categories-container');
-            container.innerHTML = '';
-
-            for (const category in inventoryCategories) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
-                
-                const categoryTitle = document.createElement('h2');
-                categoryTitle.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                categoryDiv.appendChild(categoryTitle);
-                
-                const itemList = document.createElement('ul');
-                itemList.className = 'item-list';
-                itemList.id = `${category}-list`;
-                
-                // Add all items for this category
-                inventoryCategories[category].forEach(item => {
-                    const listItem = createInventoryItem(category, item);
-                    itemList.appendChild(listItem);
-                });
-                
-                categoryDiv.appendChild(itemList);
-                
-                // Add section actions
-                const sectionActions = document.createElement('div');
-                sectionActions.className = 'section-actions';
-                
-                const addButton = document.createElement('button');
-                addButton.className = 'btn btn-add';
-                addButton.textContent = 'Add Item';
-                addButton.onclick = () => addNewItem(category);
-                
-                const clearButton = document.createElement('button');
-                clearButton.className = 'btn clear-section';
-                clearButton.textContent = 'Clear Section';
-                clearButton.onclick = () => clearSection(category);
-                
-                sectionActions.appendChild(addButton);
-                sectionActions.appendChild(clearButton);
-                categoryDiv.appendChild(sectionActions);
-                
-                container.appendChild(categoryDiv);
+    function loadInitialData() {
+      database.ref('inventory/' + selectedStore).once('value').then((snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          for (const category in data) {
+            const itemList = document.getElementById(`${category}-list`);
+            if (itemList) {
+              for (const itemName in data[category]) {
+                const itemValue = data[category][itemName];
+                const input = itemList.querySelector(`input[data-item="${itemName}"]`);
+                if (input) {
+                  input.value = itemValue;
+                }
+              }
             }
+          }
         }
-
-        // Load initial data from Firebase
-        function loadInitialData() {
-            // Load inventory data
-            database.ref('inventory').once('value').then((snapshot) => {
-                const data = snapshot.val();
-                
-                if (data) {
-                    for (const category in data) {
-                        const itemList = document.getElementById(`${category}-list`);
-                        if (itemList) {
-                            for (const itemName in data[category]) {
-                                const itemValue = data[category][itemName];
-                                const input = itemList.querySelector(`input[data-item="${itemName}"]`);
-                                if (input) {
-                                    input.value = itemValue;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Set up real-time updates for inventory
-            database.ref('inventory').on('child_changed', (snapshot) => {
-                const category = snapshot.key;
-                const data = snapshot.val();
-                
-                const itemList = document.getElementById(`${category}-list`);
-                if (itemList) {
-                    for (const itemName in data) {
-                        const itemValue = data[itemName];
-                        const input = itemList.querySelector(`input[data-item="${itemName}"]`);
-                        if (input) {
-                            input.value = itemValue;
-                        }
-                    }
-                }
-            });
-        }
-
-        // Set up daily log functionality
-        function setupDailyLog() {
-            const textarea = document.getElementById('daily-log-textarea');
-            const saveBtn = document.getElementById('save-log-btn');
-            
-            // Load current log
-            database.ref('dailyLog').once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    textarea.value = snapshot.val();
-                }
-            });
-            
-            // Set up real-time updates for log
-            database.ref('dailyLog').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    textarea.value = snapshot.val();
-                }
-            });
-            
-            // Save log to Firebase
-            saveBtn.addEventListener('click', () => {
-                const logText = textarea.value.trim();
-                database.ref('dailyLog').set(logText)
-                    .then(() => alert('Daily log saved!'))
-                    .catch(error => alert('Error saving log: ' + error.message));
-            });
-        }
-
-        // Create an inventory item element
-        function createInventoryItem(category, itemName, itemValue = '') {
-            const item = document.createElement('li');
-            item.className = 'item';
-            
-            const label = document.createElement('div');
-            label.className = 'item-label';
-            label.textContent = itemName;
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'item-input';
-            input.placeholder = 'Enter quantity...';
-            input.value = itemValue;
-            input.dataset.category = category;
-            input.dataset.item = itemName;
-            
-            // Update Firebase when input changes
-            input.addEventListener('change', function() {
-                const value = this.value.trim();
-                updateInventoryItem(category, itemName, value);
-            });
-            
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'btn btn-remove';
-            removeBtn.textContent = 'Remove';
-            removeBtn.onclick = () => removeInventoryItem(category, itemName, item);
-            
-            const itemActions = document.createElement('div');
-            itemActions.className = 'item-actions';
-            itemActions.appendChild(removeBtn);
-            
-            item.appendChild(label);
-            item.appendChild(input);
-            item.appendChild(itemActions);
-            
-            return item;
-        }
-
-        // Add a new item to a category
-        function addNewItem(category) {
-            const newItemName = prompt('Enter new item name:');
-            if (newItemName && newItemName.trim() !== '') {
-                const itemList = document.getElementById(`${category}-list`);
-                const newItem = createInventoryItem(category, newItemName);
-                itemList.appendChild(newItem);
-                
-                // Add to Firebase
-                database.ref(`inventory/${category}/${newItemName}`).set('');
-                
-                // Add to local inventory structure
-                if (!inventoryCategories[category].includes(newItemName)) {
-                    inventoryCategories[category].push(newItemName);
-                }
+      });
+      database.ref('inventory/' + selectedStore).on('child_changed', (snapshot) => {
+        const category = snapshot.key;
+        const data = snapshot.val();
+        const itemList = document.getElementById(`${category}-list`);
+        if (itemList) {
+          for (const itemName in data) {
+            const itemValue = data[itemName];
+            const input = itemList.querySelector(`input[data-item="${itemName}"]`);
+            if (input) {
+              input.value = itemValue;
             }
+          }
         }
+      });
+    }
 
-        // Remove an item from inventory
-        function removeInventoryItem(category, itemName, itemElement) {
-            if (confirm(`Are you sure you want to remove ${itemName}?`)) {
-                // Remove from Firebase
-                database.ref(`inventory/${category}/${itemName}`).remove();
-                
-                // Remove from DOM
-                itemElement.remove();
-                
-                // Remove from local inventory structure
-                const index = inventoryCategories[category].indexOf(itemName);
-                if (index > -1) {
-                    inventoryCategories[category].splice(index, 1);
-                }
+    function setupNotes() {
+      const textarea = document.getElementById('notes-textarea');
+      const saveBtn = document.getElementById('save-notes-btn');
+      
+      database.ref('notes/' + selectedStore).once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+          textarea.value = snapshot.val();
+        }
+      });
+      
+      database.ref('notes/' + selectedStore).on('value', (snapshot) => {
+        if (snapshot.exists()) {
+          textarea.value = snapshot.val();
+        }
+      });
+      
+      saveBtn.addEventListener('click', () => {
+        const notesText = textarea.value.trim();
+        database.ref('notes/' + selectedStore).set(notesText)
+          .then(() => alert('Notes saved!'))
+          .catch(error => alert('Error saving notes: ' + error.message));
+      });
+
+      let typingTimer;
+      textarea.addEventListener('input', () => {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+          const notesText = textarea.value.trim();
+          database.ref('notes/' + selectedStore).set(notesText)
+            .catch(error => console.error('Error auto-saving notes:', error));
+        }, 2000);
+      });
+    }
+
+    function createInventoryItem(category, itemName, itemValue = '') {
+      const item = document.createElement('li');
+      item.className = 'item';
+      
+      const label = document.createElement('div');
+      label.className = 'item-label';
+      label.textContent = itemName;
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'item-input';
+      input.placeholder = 'Enter quantity...';
+      input.value = itemValue;
+      input.dataset.category = category;
+      input.dataset.item = itemName;
+      
+      input.addEventListener('change', function() {
+        const value = this.value.trim();
+        updateInventoryItem(category, itemName, value);
+      });
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'btn btn-remove';
+      removeBtn.textContent = 'Remove';
+      removeBtn.onclick = () => removeInventoryItem(category, itemName, item);
+      
+      const itemActions = document.createElement('div');
+      itemActions.className = 'item-actions';
+      itemActions.appendChild(removeBtn);
+      
+      item.appendChild(label);
+      item.appendChild(input);
+      item.appendChild(itemActions);
+      
+      return item;
+    }
+
+    function addNewItem(category) {
+      const newItemName = prompt('Enter new item name:');
+      if (newItemName && newItemName.trim() !== '') {
+        const itemList = document.getElementById(`${category}-list`);
+        const newItem = createInventoryItem(category, newItemName);
+        itemList.appendChild(newItem);
+        database.ref(`inventory/${selectedStore}/${category}/${newItemName}`).set('');
+        if (!inventoryCategories[category].includes(newItemName)) {
+          inventoryCategories[category].push(newItemName);
+        }
+      }
+    }
+
+    function removeInventoryItem(category, itemName, itemElement) {
+      if (confirm(`Are you sure you want to remove ${itemName}?`)) {
+        database.ref(`inventory/${selectedStore}/${category}/${itemName}`).remove();
+        itemElement.remove();
+        const index = inventoryCategories[category].indexOf(itemName);
+        if (index > -1) {
+          inventoryCategories[category].splice(index, 1);
+        }
+      }
+    }
+
+    function clearSection(category) {
+      if (confirm(`Are you sure you want to clear all items in ${category}?`)) {
+        const inputs = document.querySelectorAll(`#${category}-list .item-input`);
+        inputs.forEach(input => {
+          input.value = '';
+          const itemName = input.dataset.item;
+          updateInventoryItem(category, itemName, '');
+        });
+      }
+    }
+
+    function updateInventoryItem(category, itemName, value) {
+      database.ref(`inventory/${selectedStore}/${category}/${itemName}`).set(value);
+    }
+
+    function generateInventoryList() {
+      let output = '';
+      database.ref('inventory/' + selectedStore).once('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          for (const category in data) {
+            let categoryHasItems = false;
+            let categoryOutput = `${category.charAt(0).toUpperCase() + category.slice(1)}:\n`;
+            for (const itemName in data[category]) {
+              const itemValue = data[category][itemName];
+              if (itemValue.trim() !== '') {
+                categoryOutput += `${itemName}: ${itemValue}\n`;
+                categoryHasItems = true;
+              }
             }
-        }
-
-        // Clear a section
-        function clearSection(category) {
-            if (confirm(`Are you sure you want to clear all items in ${category}?`)) {
-                // Clear all inputs in this section
-                const inputs = document.querySelectorAll(`#${category}-list .item-input`);
-                inputs.forEach(input => {
-                    input.value = '';
-                    const itemName = input.dataset.item;
-                    updateInventoryItem(category, itemName, '');
-                });
+            if (categoryHasItems) {
+              output += categoryOutput + '\n';
             }
+          }
         }
+        document.getElementById('output-content').textContent = output || 'No items in inventory.';
+      });
+    }
 
-        // Update an inventory item in Firebase
-        function updateInventoryItem(category, itemName, value) {
-            database.ref(`inventory/${category}/${itemName}`).set(value);
-        }
+    function copyInventoryList() {
+      const outputContent = document.getElementById('output-content').textContent;
+      if (outputContent.trim() === '') {
+        alert('Please generate a list first.');
+        return;
+      }
+      navigator.clipboard.writeText(outputContent)
+        .then(() => alert('List copied to clipboard!'))
+        .catch(err => alert('Failed to copy: ' + err));
+    }
 
-        // Generate the inventory list
-        function generateInventoryList() {
-            let output = '';
-            
-            database.ref('inventory').once('value', (snapshot) => {
-                const data = snapshot.val();
-                
-                if (data) {
-                    for (const category in data) {
-                        let categoryHasItems = false;
-                        let categoryOutput = `${category.charAt(0).toUpperCase() + category.slice(1)}:\n`;
-                        
-                        for (const itemName in data[category]) {
-                            const itemValue = data[category][itemName];
-                            if (itemValue.trim() !== '') {
-                                categoryOutput += `${itemName}: ${itemValue}\n`;
-                                categoryHasItems = true;
-                            }
-                        }
-                        
-                        if (categoryHasItems) {
-                            output += categoryOutput + '\n';
-                        }
-                    }
-                }
-                
-                document.getElementById('output-content').textContent = output || 'No items in inventory.';
+    function clearInventory() {
+      if (confirm('Are you sure you want to clear all inventory items? This cannot be undone.')) {
+        database.ref('inventory/' + selectedStore).remove()
+          .then(() => {
+            document.getElementById('output-content').textContent = 'Inventory cleared.';
+            const inputs = document.querySelectorAll('.item-input');
+            inputs.forEach(input => {
+              input.value = '';
             });
-        }
+          })
+          .catch(error => alert('Error clearing inventory: ' + error.message));
+      }
+    }
 
-        // Copy the generated list to clipboard
-        function copyInventoryList() {
-            const outputContent = document.getElementById('output-content').textContent;
-            if (outputContent.trim() === '') {
-                alert('Please generate a list first.');
-                return;
-            }
-            
-            navigator.clipboard.writeText(outputContent)
-                .then(() => alert('List copied to clipboard!'))
-                .catch(err => alert('Failed to copy: ' + err));
-        }
+    function setupEventListeners() {
+      document.getElementById('generate-btn').addEventListener('click', generateInventoryList);
+      document.getElementById('copy-btn').addEventListener('click', copyInventoryList);
+      document.getElementById('clear-btn').addEventListener('click', clearInventory);
+    }
 
-        // Clear all inventory inputs
-        function clearInventory() {
-            if (confirm('Are you sure you want to clear all inventory items? This cannot be undone.')) {
-                database.ref('inventory').remove()
-                    .then(() => {
-                        document.getElementById('output-content').textContent = 'Inventory cleared.';
-                        // Clear all inputs
-                        const inputs = document.querySelectorAll('.item-input');
-                        inputs.forEach(input => {
-                            input.value = '';
-                        });
-                    })
-                    .catch(error => alert('Error clearing inventory: ' + error.message));
-            }
+    // ---------- Store Selection and App Initialization ----------
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set up the Switch Store button
+      document.getElementById('switch-store-btn').addEventListener('click', function() {
+        if (confirm("Switch store? Unsaved changes might be lost.")) {
+          location.reload();
         }
-
-        // Set up event listeners for action buttons
-        function setupEventListeners() {
-            document.getElementById('generate-btn').addEventListener('click', generateInventoryList);
-            document.getElementById('copy-btn').addEventListener('click', copyInventoryList);
-            document.getElementById('clear-btn').addEventListener('click', clearInventory);
-        }
-    </script>
+      });
+      
+      // Add click listeners to store selection buttons
+      document.querySelectorAll('.store-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          selectedStore = this.getAttribute('data-store');
+          document.getElementById('main-heading').textContent = selectedStore + ' Inventory Management';
+          // Hide the store selection overlay
+          document.getElementById('store-selection').style.display = 'none';
+          // Initialize the app with the selected store
+          renderInventoryUI();
+          loadInitialData();
+          setupNotes();
+          setupEventListeners();
+        });
+      });
+    });
+  </script>
 </body>
 </html>
