@@ -17,13 +17,11 @@
       --error-color: #d62b1f;
       --success-color: #4caf50;
     }
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
     body {
       font-family: 'Roboto', sans-serif;
       line-height: 1.6;
@@ -31,25 +29,85 @@
       background-color: var(--light-color);
       padding: 20px;
     }
-
-    /* ---------- Password Screen Styles ---------- */
-    #password-screen {
+    /* ---------- Common Home Button Style ---------- */
+    .home-btn {
+      font-size: 1.5rem;
+      padding: 10px 20px;
+      margin-left: 10px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .home-btn:hover {
+      background-color: #0f2a22;
+    }
+    /* ---------- Overlays ---------- */
+    /* Role Selection Overlay */
+    #role-selection {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    #role-selection .role-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    #role-selection h2 {
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      color: var(--accent-color);
+    }
+    #role-selection button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: white;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    #role-selection button[data-role="manager"] {
+      background-color: var(--primary-color);
+    }
+    #role-selection button[data-role="lead"] {
+      background-color: var(--accent-color);
+    }
+    #role-selection button:hover {
+      transform: scale(1.05);
+    }
+    /* Manager Password Overlay */
+    #manager-password-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: black;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       z-index: 10000;
     }
-    #password-screen form {
-      width: 100%;
+    #manager-password-screen form {
       text-align: center;
+      display: inline-flex;
+      align-items: center;
     }
-    #password-screen input#password-input {
+    #manager-password-screen input {
       font-size: 2rem;
       padding: 10px 20px;
       border: none;
@@ -57,28 +115,173 @@
       text-align: center;
       outline: none;
     }
-
+    #manager-password-screen button {
+      font-size: 2rem;
+      padding: 10px;
+      margin-left: 10px;
+      background-color: var(--success-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* Home button for Manager Password Overlay */
+    #manager-home-btn {
+      font-size: 2rem;
+      padding: 10px;
+      margin-left: 10px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* Store Selection Overlay */
+    #store-selection {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+    }
+    #store-selection .store-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      text-align: center;
+      position: relative;
+    }
+    #store-selection h2 {
+      margin-bottom: 20px;
+      color: var(--accent-color);
+      font-size: 1.5rem;
+    }
+    #store-selection .store-btn {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: white;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    #store-selection .store-btn:hover {
+      background-color: #004d33;
+      transform: scale(1.05);
+    }
+    /* Home button for Store Selection Overlay */
+    #store-selection .home-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    /* Store Password Overlay (for Lead users) */
+    #store-password-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    #store-password-screen form {
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+    }
+    #store-password-screen input {
+      font-size: 2rem;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      text-align: center;
+      outline: none;
+    }
+    #store-password-screen button {
+      font-size: 2rem;
+      padding: 10px;
+      margin-left: 10px;
+      background-color: var(--success-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* Home button for Store Password Overlay */
+    #store-home-btn {
+      font-size: 2rem;
+      padding: 10px;
+      margin-left: 10px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* ---------- Popup Message ---------- */
+    #popup-message {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 0, 0, 0.9);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      z-index: 11000;
+      font-size: 1rem;
+    }
+    /* ---------- Main Application Styles ---------- */
     .container {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
       position: relative;
+      display: none; /* Hidden until authentication is complete */
     }
-
+    /* Global Home Button in Main App */
+    #global-home-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.5rem;
+      padding: 10px 20px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    #global-home-btn:hover {
+      background-color: #0f2a22;
+    }
     h1 {
       color: var(--primary-color);
       text-align: center;
       margin-bottom: 30px;
       font-weight: 700;
     }
-
     .categories {
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
       margin-bottom: 30px;
     }
-
     .category {
       background-color: white;
       border-radius: 8px;
@@ -86,11 +289,9 @@
       padding: 20px;
       transition: transform 0.3s ease;
     }
-
     .category:hover {
       transform: translateY(-5px);
     }
-
     .category h2 {
       color: var(--accent-color);
       margin-bottom: 15px;
@@ -98,24 +299,20 @@
       border-bottom: 2px solid var(--secondary-color);
       font-size: 1.2rem;
     }
-
     .item-list {
       list-style: none;
       margin-bottom: 15px;
     }
-
     .item {
       display: flex;
       align-items: center;
       margin-bottom: 12px;
     }
-
     .item-label {
       width: 150px;
       font-size: 0.9rem;
       margin-right: 10px;
     }
-
     .item-input {
       flex: 1;
       padding: 8px 12px;
@@ -123,17 +320,14 @@
       border-radius: 4px;
       font-size: 0.9rem;
     }
-
     .item-input:focus {
       outline: none;
       border-color: var(--primary-color);
     }
-
     .item-actions {
       display: flex;
       margin-left: 10px;
     }
-
     .btn {
       padding: 6px 12px;
       border: none;
@@ -143,49 +337,40 @@
       font-weight: 500;
       transition: background-color 0.3s ease;
     }
-
     .btn-add {
       background-color: var(--success-color);
       color: white;
       margin-right: 5px;
     }
-
     .btn-add:hover {
       background-color: #3d8b40;
     }
-
     .btn-remove {
       background-color: var(--error-color);
       color: white;
     }
-
     .btn-remove:hover {
       background-color: #bb241a;
     }
-
     .section-actions {
       display: flex;
       justify-content: space-between;
       margin-top: 15px;
     }
-
     .clear-section {
       background-color: #f8f8f8;
       color: var(--error-color);
       border: 1px solid var(--error-color);
     }
-
     .clear-section:hover {
       background-color: #f0f0f0;
     }
-
     .action-buttons {
       display: flex;
       justify-content: center;
       gap: 15px;
       margin: 30px 0;
     }
-
     .action-btn {
       padding: 10px 20px;
       border: none;
@@ -195,34 +380,27 @@
       font-weight: 500;
       transition: all 0.3s ease;
     }
-
     .generate-btn {
       background-color: var(--primary-color);
       color: white;
     }
-
     .generate-btn:hover {
       background-color: #004d33;
     }
-
     .copy-btn {
       background-color: var(--accent-color);
       color: white;
     }
-
     .copy-btn:hover {
       background-color: #0f2a22;
     }
-
     .clear-btn {
       background-color: var(--error-color);
       color: white;
     }
-
     .clear-btn:hover {
       background-color: #bb241a;
     }
-
     .output {
       margin-top: 20px;
       padding: 20px;
@@ -235,23 +413,19 @@
       max-height: 400px;
       overflow-y: auto;
     }
-
     .output-title {
       color: var(--accent-color);
       margin-bottom: 10px;
       font-weight: 500;
     }
-
     .notes-section {
       margin-top: 30px;
     }
-
     .notes-title {
       color: var(--accent-color);
       margin-bottom: 10px;
       font-weight: 500;
     }
-
     .notes-textarea {
       width: 100%;
       padding: 15px;
@@ -263,12 +437,10 @@
       min-height: 150px;
       margin-bottom: 15px;
     }
-
     .notes-textarea:focus {
       outline: none;
       border-color: var(--primary-color);
     }
-
     .save-notes-btn {
       background-color: var(--primary-color);
       color: white;
@@ -279,123 +451,61 @@
       font-size: 1rem;
       transition: background-color 0.3s ease;
     }
-
     .save-notes-btn:hover {
       background-color: #004d33;
-    }
-
-    /* Switch Store Button */
-    .switch-store-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 5px 10px;
-      background-color: var(--accent-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background-color 0.3s ease;
-    }
-    .switch-store-btn:hover {
-      background-color: #0f2a22;
-    }
-
-    @media (max-width: 768px) {
-      .action-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .action-btn {
-        width: 100%;
-        max-width: 300px;
-      }
-
-      .item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .item-label {
-        width: 100%;
-        margin-bottom: 5px;
-      }
-
-      .item-input {
-        width: 100%;
-      }
-    }
-
-    /* ---------- Enhanced Store Selection Overlay ---------- */
-    #store-selection {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    #store-selection .store-container {
-      background: #fff;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-
-    #store-selection h2 {
-      margin-bottom: 20px;
-      color: var(--accent-color);
-      font-size: 1.5rem;
-    }
-
-    #store-selection .store-btn {
-      padding: 10px 20px;
-      margin: 5px;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
-      background-color: var(--primary-color);
-      color: white;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    #store-selection .store-btn:hover {
-      background-color: #004d33;
-      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <!-- Password Overlay -->
-  <div id="password-screen">
-    <form id="password-form">
-      <input type="password" id="password-input" placeholder="password" autofocus />
+  <!-- Popup Message -->
+  <div id="popup-message"></div>
+
+  <!-- Role Selection Overlay (Home screen) -->
+  <div id="role-selection">
+    <div class="role-container">
+      <h2>Select Your Role</h2>
+      <button data-role="lead">Lead</button>
+      <button data-role="manager">Manager</button>
+    </div>
+  </div>
+
+  <!-- Manager Password Overlay -->
+  <div id="manager-password-screen">
+    <form id="manager-password-form">
+      <input type="password" id="manager-password-input" placeholder="Enter Manager Password" autofocus />
+      <button type="submit">&#10004;</button>
+      <button type="button" id="manager-back-btn">Back</button>
+      <button type="button" id="manager-home-btn" class="home-btn">Home</button>
     </form>
   </div>
 
   <!-- Store Selection Overlay -->
-  <div id="store-selection" style="display: none;">
+  <div id="store-selection">
     <div class="store-container">
       <h2>Select a Store</h2>
-      <button class="store-btn" data-store="Connector">Connector</button>
       <button class="store-btn" data-store="HeadHouse">HeadHouse</button>
       <button class="store-btn" data-store="Mobile">Mobile</button>
       <button class="store-btn" data-store="D">D</button>
-      <button class="store-btn" data-store="Departures">Departures</button>
       <button class="store-btn" data-store="Baggage">Baggage</button>
+      <button class="store-btn" data-store="Departures">Departures</button>
+      <button class="store-btn" data-store="Connector">Connector</button>
+      <button type="button" class="home-btn" id="store-selection-home-btn">Home</button>
     </div>
   </div>
 
-  <div class="container">
+  <!-- Store Password Overlay (for Lead users only) -->
+  <div id="store-password-screen">
+    <form id="store-password-form">
+      <input type="password" id="store-password-input" placeholder="Enter store password" autofocus />
+      <button type="submit">&#10004;</button>
+      <button type="button" id="store-back-btn">Back</button>
+      <button type="button" id="store-home-btn" class="home-btn">Home</button>
+    </form>
+  </div>
+
+  <!-- Main Application Container -->
+  <div class="container" id="main-container">
+    <button id="global-home-btn">Home</button>
     <button id="switch-store-btn" class="switch-store-btn">Switch Store</button>
     <h1 id="main-heading">Inventory Management System</h1>
     
@@ -422,21 +532,147 @@
   </div>
 
   <script>
-    // --------- Password Check ----------
-    document.getElementById('password-form').addEventListener('submit', function(e) {
+    // ------------------ Global Variables ------------------
+    let currentRole = "";  // "lead" or "manager"
+    let selectedStore = "";
+    let pendingStore = ""; // For lead mode pending store password entry
+    // Mapping of store passwords for Lead mode
+    const storePasswords = {
+      HeadHouse: "0101",
+      Mobile: "0000",
+      D: "1010",
+      Baggage: "1111",
+      Departures: "1110",
+      Connector: "0001"
+    };
+
+    // ------------------ Popup Message ------------------
+    function showPopup(message) {
+      const popup = document.getElementById('popup-message');
+      popup.textContent = message;
+      popup.style.display = 'block';
+      setTimeout(() => {
+        popup.style.display = 'none';
+      }, 3000);
+    }
+
+    // ------------------ Global Home Function ------------------
+    function goHome() {
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("selectedStore");
+      location.reload();
+    }
+    // Attach goHome to all home buttons
+    document.getElementById('manager-home-btn').addEventListener('click', goHome);
+    document.getElementById('store-home-btn').addEventListener('click', goHome);
+    document.getElementById('store-selection-home-btn').addEventListener('click', goHome);
+    document.getElementById('global-home-btn').addEventListener('click', goHome);
+
+    // ------------------ Role Selection ------------------
+    document.querySelectorAll('#role-selection button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        currentRole = this.getAttribute('data-role');
+        document.getElementById('role-selection').style.display = 'none';
+        if (currentRole === "manager") {
+          document.getElementById('manager-password-screen').style.display = 'flex';
+        } else {
+          document.getElementById('store-selection').style.display = 'flex';
+        }
+      });
+    });
+
+    // ------------------ Manager Password Check ------------------
+    document.getElementById('manager-password-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      const pwd = document.getElementById('password-input').value;
-      if (pwd === '0000') {
-        // Hide password overlay and show the store selection overlay
-        document.getElementById('password-screen').style.display = 'none';
+      const pwd = document.getElementById('manager-password-input').value;
+      if (pwd === "Access") {
+        localStorage.setItem("userRole", currentRole);
+        document.getElementById('manager-password-screen').style.display = 'none';
         document.getElementById('store-selection').style.display = 'flex';
       } else {
-        alert('Incorrect password.');
-        document.getElementById('password-input').value = '';
+        showPopup('Incorrect Manager Password.');
+        document.getElementById('manager-password-input').value = '';
+      }
+    });
+    document.getElementById('manager-back-btn').addEventListener('click', function() {
+      document.getElementById('manager-password-screen').style.display = 'none';
+      document.getElementById('role-selection').style.display = 'flex';
+    });
+
+    // ------------------ Store Selection (Both Roles) ------------------
+    document.querySelectorAll('#store-selection .store-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const store = this.getAttribute('data-store');
+        if (currentRole === "manager") {
+          selectedStore = store;
+          localStorage.setItem("selectedStore", store);
+          document.getElementById('store-selection').style.display = 'none';
+          updateHeadingAndLoadData(store);
+        } else {
+          pendingStore = store;
+          document.getElementById('store-selection').style.display = 'none';
+          document.getElementById('store-password-input').placeholder = `Password for ${store}`;
+          document.getElementById('store-password-screen').style.display = 'flex';
+        }
+      });
+    });
+
+    // ------------------ Store Password Check for Lead ------------------
+    document.getElementById('store-password-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('store-password-input').value;
+      if (pwd === storePasswords[pendingStore]) {
+        selectedStore = pendingStore;
+        localStorage.setItem("userRole", currentRole);
+        localStorage.setItem("selectedStore", pendingStore);
+        document.getElementById('store-password-screen').style.display = 'none';
+        updateHeadingAndLoadData(pendingStore);
+      } else {
+        showPopup('Incorrect store password.');
+        document.getElementById('store-password-input').value = '';
+      }
+    });
+    document.getElementById('store-back-btn').addEventListener('click', function() {
+      document.getElementById('store-password-screen').style.display = 'none';
+      document.getElementById('store-selection').style.display = 'flex';
+    });
+
+    // ------------------ Function to Update Heading & Initialize App ------------------
+    function updateHeadingAndLoadData(store) {
+      const headingText = (currentRole === "manager" ? "Manager" : "Lead") + " - " + store + " Inventory Management";
+      document.getElementById('main-heading').textContent = headingText;
+      document.getElementById('main-container').style.display = 'block';
+      renderInventoryUI();
+      loadInitialData();
+      setupNotes();
+      setupEventListeners();
+    }
+
+    // ------------------ Switch Store Button ------------------
+    document.getElementById('switch-store-btn').addEventListener('click', function() {
+      if (confirm("Switch store? Unsaved changes might be lost.")) {
+        document.getElementById('store-selection').style.display = 'flex';
       }
     });
 
-    // --------- Firebase Initialization ----------
+    // ------------------ Persistent Session Check ------------------
+    // Run this before any other UI is shown
+    document.addEventListener('DOMContentLoaded', function() {
+      const storedRole = localStorage.getItem("userRole");
+      const storedStore = localStorage.getItem("selectedStore");
+      if (storedRole && storedStore) {
+        currentRole = storedRole;
+        selectedStore = storedStore;
+        // Hide all overlays if any are still visible
+        document.getElementById('role-selection').style.display = 'none';
+        document.getElementById('manager-password-screen').style.display = 'none';
+        document.getElementById('store-selection').style.display = 'none';
+        document.getElementById('store-password-screen').style.display = 'none';
+        updateHeadingAndLoadData(storedStore);
+      }
+    });
+
+    // ------------------ Firebase Initialization ------------------
     const firebaseConfig = {
       apiKey: "AIzaSyDuFjeruJPdkDLUOazyA_BzpTKA1SWT4bw",
       authDomain: "inventory-d35b5.firebaseapp.com",
@@ -450,10 +686,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Global variable to hold the selected store
-    let selectedStore = "";
-
-    // Inventory data structure remains unchanged
+    // ------------------ Inventory Data Structure & Functions ------------------
     const inventoryCategories = {
       milks: [
         "2%", "Whole Milk", "Nonfat", "Half n Half", "Heavy Cream",
@@ -524,49 +757,36 @@
       ]
     };
 
-    // ---------- Inventory and Notes Functions ----------
     function renderInventoryUI() {
       const container = document.getElementById('categories-container');
       container.innerHTML = '';
-
       for (const category in inventoryCategories) {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'category';
-        
         const categoryTitle = document.createElement('h2');
         categoryTitle.textContent = category.charAt(0).toUpperCase() + category.slice(1);
         categoryDiv.appendChild(categoryTitle);
-        
         const itemList = document.createElement('ul');
         itemList.className = 'item-list';
         itemList.id = `${category}-list`;
-        
-        // Add all items for this category
         inventoryCategories[category].forEach(item => {
           const listItem = createInventoryItem(category, item);
           itemList.appendChild(listItem);
         });
-        
         categoryDiv.appendChild(itemList);
-        
-        // Section actions: Add Item & Clear Section
         const sectionActions = document.createElement('div');
         sectionActions.className = 'section-actions';
-        
         const addButton = document.createElement('button');
         addButton.className = 'btn btn-add';
         addButton.textContent = 'Add Item';
         addButton.onclick = () => addNewItem(category);
-        
         const clearButton = document.createElement('button');
         clearButton.className = 'btn clear-section';
         clearButton.textContent = 'Clear Section';
         clearButton.onclick = () => clearSection(category);
-        
         sectionActions.appendChild(addButton);
         sectionActions.appendChild(clearButton);
         categoryDiv.appendChild(sectionActions);
-        
         container.appendChild(categoryDiv);
       }
     }
@@ -595,7 +815,7 @@
         const itemList = document.getElementById(`${category}-list`);
         if (itemList) {
           for (const itemName in data) {
-            const itemValue = data[itemName];
+            const itemValue = data[category][itemName];
             const input = itemList.querySelector(`input[data-item="${itemName}"]`);
             if (input) {
               input.value = itemValue;
@@ -608,26 +828,22 @@
     function setupNotes() {
       const textarea = document.getElementById('notes-textarea');
       const saveBtn = document.getElementById('save-notes-btn');
-      
       database.ref('notes/' + selectedStore).once('value').then((snapshot) => {
         if (snapshot.exists()) {
           textarea.value = snapshot.val();
         }
       });
-      
       database.ref('notes/' + selectedStore).on('value', (snapshot) => {
         if (snapshot.exists()) {
           textarea.value = snapshot.val();
         }
       });
-      
       saveBtn.addEventListener('click', () => {
         const notesText = textarea.value.trim();
         database.ref('notes/' + selectedStore).set(notesText)
-          .then(() => alert('Notes saved!'))
-          .catch(error => alert('Error saving notes: ' + error.message));
+          .then(() => showPopup('Notes saved!'))
+          .catch(error => showPopup('Error saving notes: ' + error.message));
       });
-
       let typingTimer;
       textarea.addEventListener('input', () => {
         clearTimeout(typingTimer);
@@ -642,11 +858,9 @@
     function createInventoryItem(category, itemName, itemValue = '') {
       const item = document.createElement('li');
       item.className = 'item';
-      
       const label = document.createElement('div');
       label.className = 'item-label';
       label.textContent = itemName;
-      
       const input = document.createElement('input');
       input.type = 'text';
       input.className = 'item-input';
@@ -654,25 +868,20 @@
       input.value = itemValue;
       input.dataset.category = category;
       input.dataset.item = itemName;
-      
       input.addEventListener('change', function() {
         const value = this.value.trim();
         updateInventoryItem(category, itemName, value);
       });
-      
       const removeBtn = document.createElement('button');
       removeBtn.className = 'btn btn-remove';
       removeBtn.textContent = 'Remove';
       removeBtn.onclick = () => removeInventoryItem(category, itemName, item);
-      
       const itemActions = document.createElement('div');
       itemActions.className = 'item-actions';
       itemActions.appendChild(removeBtn);
-      
       item.appendChild(label);
       item.appendChild(input);
       item.appendChild(itemActions);
-      
       return item;
     }
 
@@ -742,12 +951,12 @@
     function copyInventoryList() {
       const outputContent = document.getElementById('output-content').textContent;
       if (outputContent.trim() === '') {
-        alert('Please generate a list first.');
+        showPopup('Please generate a list first.');
         return;
       }
       navigator.clipboard.writeText(outputContent)
-        .then(() => alert('List copied to clipboard!'))
-        .catch(err => alert('Failed to copy: ' + err));
+        .then(() => showPopup('List copied to clipboard!'))
+        .catch(err => showPopup('Failed to copy: ' + err));
     }
 
     function clearInventory() {
@@ -760,7 +969,7 @@
               input.value = '';
             });
           })
-          .catch(error => alert('Error clearing inventory: ' + error.message));
+          .catch(error => showPopup('Error clearing inventory: ' + error.message));
       }
     }
 
@@ -769,31 +978,6 @@
       document.getElementById('copy-btn').addEventListener('click', copyInventoryList);
       document.getElementById('clear-btn').addEventListener('click', clearInventory);
     }
-
-    // ---------- Store Selection and App Initialization ----------
-    document.addEventListener('DOMContentLoaded', function() {
-      // Set up the Switch Store button
-      document.getElementById('switch-store-btn').addEventListener('click', function() {
-        if (confirm("Switch store? Unsaved changes might be lost.")) {
-          location.reload();
-        }
-      });
-      
-      // Add click listeners to store selection buttons
-      document.querySelectorAll('.store-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          selectedStore = this.getAttribute('data-store');
-          document.getElementById('main-heading').textContent = selectedStore + ' Inventory Management';
-          // Hide the store selection overlay
-          document.getElementById('store-selection').style.display = 'none';
-          // Initialize the app with the selected store
-          renderInventoryUI();
-          loadInitialData();
-          setupNotes();
-          setupEventListeners();
-        });
-      });
-    });
   </script>
 </body>
 </html>
