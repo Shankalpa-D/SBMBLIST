@@ -28,6 +28,64 @@
       color: var(--dark-color);
       padding: 20px;
     }
+    /* ---------- Popup Message Styling (using a nice background image) ---------- */
+    #popup-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 11000;
+      padding: 20px;
+      background: url('asset/images/nice_popup.png') no-repeat center center;
+      background-size: contain;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.2rem;
+      line-height: 1.4;
+      display: none;
+      width: 300px;
+      height: 150px;
+      border-radius: 10px;
+    }
+    /* ---------- Custom Confirm Popup (using the same nice popup image) ---------- */
+    .custom-confirm-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 12000;
+    }
+    .custom-confirm-container {
+      background: url('asset/images/nice_popup.png') no-repeat center center;
+      background-size: contain;
+      width: 300px;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      border-radius: 10px;
+      text-align: center;
+      padding: 20px;
+    }
+    .custom-confirm-buttons {
+      margin-top: 20px;
+    }
+    .custom-confirm-buttons button {
+      margin: 0 10px;
+      padding: 5px 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
     /* ---------- Role Selection Overlay ---------- */
     #role-selection {
       position: fixed;
@@ -466,6 +524,17 @@
 <body>
   <!-- Popup Message -->
   <div id="popup-message"></div>
+  
+  <!-- Custom Confirm Overlay -->
+  <div id="custom-confirm" class="custom-confirm-overlay">
+    <div class="custom-confirm-container">
+      <p id="custom-confirm-message"></p>
+      <div class="custom-confirm-buttons">
+        <button id="custom-confirm-yes">Yes</button>
+        <button id="custom-confirm-no">No</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Role Selection Overlay -->
   <div id="role-selection">
@@ -585,41 +654,15 @@
   </div>
 
   <script>
-    // ------------------ Global Variables & Default Passwords ------------------
-    let currentRole = "";  // "lead", "manager" or "admin"
-    let selectedStore = "";
-    let pendingStore = ""; // For lead mode pending store password entry
-
-    // Default passwords
-    const DEFAULT_MANAGER_PASSWORD = "Access";
-    const DEFAULT_STORE_PASSWORDS = {
-      HeadHouse: "0101",
-      Mobile: "0000",
-      D: "1010",
-      Baggage: "1111",
-      Departures: "1110",
-      Connector: "0001"
-    };
-    const ADMIN_PASSWORD = "Admin";
-
-    // Mutable password variables that will be loaded from and synced to Firebase
-    let managerPassword = DEFAULT_MANAGER_PASSWORD;
-    let storePasswords = { ...DEFAULT_STORE_PASSWORDS };
-
-    // ------------------ Load Passwords from Firebase ------------------
-    // Check if passwords are stored in Firebase. If yes, update our variables.
-    function loadPasswords() {
-      database.ref('passwords').once('value').then(function(snapshot) {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          managerPassword = data.manager || DEFAULT_MANAGER_PASSWORD;
-          storePasswords = data.store || DEFAULT_STORE_PASSWORDS;
-        }
-      }).catch(err => console.error(err));
+    // ------------------ Helper: Hashing Function using SHA-256 ------------------
+    async function hashPassword(password) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Call loadPasswords once Firebase is initialized.
-    
     // ------------------ Popup Message ------------------
     function showPopup(message) {
       const popup = document.getElementById('popup-message');
@@ -629,6 +672,70 @@
         popup.style.display = 'none';
       }, 3000);
     }
+
+    // ------------------ Custom Confirm Dialog ------------------
+    function customConfirm(message) {
+      return new Promise((resolve, reject) => {
+        const confirmOverlay = document.getElementById('custom-confirm');
+        const messageElem = document.getElementById('custom-confirm-message');
+        const yesButton = document.getElementById('custom-confirm-yes');
+        const noButton = document.getElementById('custom-confirm-no');
+        messageElem.textContent = message;
+        confirmOverlay.style.display = 'flex';
+        yesButton.onclick = () => { confirmOverlay.style.display = 'none'; resolve(true); };
+        noButton.onclick = () => { confirmOverlay.style.display = 'none'; resolve(false); };
+      });
+    }
+
+    // ------------------ Global Variables & Default Passwords (plain text defaults) ------------------
+    let currentRole = "";  // "lead", "manager" or "admin"
+    let selectedStore = "";
+    let pendingStore = ""; // For lead mode pending store password entry
+
+    // Default passwords (plain text)
+    const DEFAULT_MANAGER_PASSWORD = "Access";
+    const DEFAULT_STORE_PASSWORDS = {
+      HeadHouse: "0101",
+      Mobile: "0000",
+      D: "1010",
+      Baggage: "1111",
+      Departures: "1110",
+      Connector: "0001"
+    };
+    const DEFAULT_ADMIN_PASSWORD = "Admin";
+
+    // Global variables for hashed passwords (will be set on load)
+    let managerPassword = "";
+    let storePasswords = {};
+    let ADMIN_PASSWORD_HASH = "";
+
+    // ------------------ Load Passwords from Firebase & Initialize Defaults if Needed ------------------
+    async function loadPasswords() {
+      try {
+        const snapshot = await database.ref('passwords').once('value');
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          managerPassword = data.manager;  // Expected to be already hashed
+          storePasswords = data.store;
+        } else {
+          managerPassword = await hashPassword(DEFAULT_MANAGER_PASSWORD);
+          storePasswords = {};
+          for (const store in DEFAULT_STORE_PASSWORDS) {
+            storePasswords[store] = await hashPassword(DEFAULT_STORE_PASSWORDS[store]);
+          }
+          // Save hashed defaults to Firebase
+          database.ref('passwords').set({
+            manager: managerPassword,
+            store: storePasswords
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Pre-calculate the admin password hash.
+    hashPassword(DEFAULT_ADMIN_PASSWORD).then(hash => { ADMIN_PASSWORD_HASH = hash; });
 
     // ------------------ Global Home Function ------------------
     function goHome() {
@@ -641,7 +748,6 @@
     document.getElementById('store-home-btn').addEventListener('click', goHome);
     document.getElementById('store-selection-home-btn').addEventListener('click', goHome);
     document.getElementById('admin-password-home-btn').addEventListener('click', goHome);
-    // The admin panel now uses its own home button with ID "admin-home-btn"
     document.getElementById('admin-home-btn').addEventListener('click', goHome);
     document.getElementById('global-home-btn').addEventListener('click', goHome);
 
@@ -661,10 +767,11 @@
     });
 
     // ------------------ Manager Password Check ------------------
-    document.getElementById('manager-password-form').addEventListener('submit', function(e) {
+    document.getElementById('manager-password-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const pwd = document.getElementById('manager-password-input').value;
-      if (pwd === managerPassword) {
+      const hashedInput = await hashPassword(pwd);
+      if (hashedInput === managerPassword) {
         localStorage.setItem("userRole", currentRole);
         document.getElementById('manager-password-screen').style.display = 'none';
         document.getElementById('store-selection').style.display = 'flex';
@@ -679,10 +786,11 @@
     });
 
     // ------------------ Admin Password Check ------------------
-    document.getElementById('admin-password-form').addEventListener('submit', function(e) {
+    document.getElementById('admin-password-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const pwd = document.getElementById('admin-password-input').value;
-      if (pwd === ADMIN_PASSWORD) {
+      const hashedInput = await hashPassword(pwd);
+      if (hashedInput === ADMIN_PASSWORD_HASH) {
         localStorage.setItem("userRole", currentRole);
         document.getElementById('admin-password-screen').style.display = 'none';
         renderAdminUI();
@@ -715,10 +823,11 @@
     });
 
     // ------------------ Store Password Check for Lead ------------------
-    document.getElementById('store-password-form').addEventListener('submit', function(e) {
+    document.getElementById('store-password-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const pwd = document.getElementById('store-password-input').value;
-      if (pwd === storePasswords[pendingStore]) {
+      const hashedInput = await hashPassword(pwd);
+      if (hashedInput === storePasswords[pendingStore]) {
         selectedStore = pendingStore;
         localStorage.setItem("userRole", currentRole);
         localStorage.setItem("selectedStore", pendingStore);
@@ -751,15 +860,15 @@
     }
 
     // ------------------ Switch Store Button ------------------
-    document.getElementById('switch-store-btn').addEventListener('click', function() {
-      if (confirm("Switch store? Unsaved changes might be lost.")) {
+    document.getElementById('switch-store-btn').addEventListener('click', async function() {
+      if (await customConfirm("Switch store? Unsaved changes might be lost.")) {
         document.getElementById('store-selection').style.display = 'flex';
       }
     });
 
     // ------------------ Persistent Session Check ------------------
-    document.addEventListener('DOMContentLoaded', function() {
-      loadPasswords();
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadPasswords();
       const storedRole = localStorage.getItem("userRole");
       const storedStore = localStorage.getItem("selectedStore");
       if (storedRole && storedStore) {
@@ -997,7 +1106,7 @@
       return item;
     }
 
-    function addNewItem(category) {
+    async function addNewItem(category) {
       const newItemName = prompt('Enter new item name:');
       if (newItemName && newItemName.trim() !== '') {
         const itemList = document.getElementById(`${category}-list`);
@@ -1010,8 +1119,8 @@
       }
     }
 
-    function removeInventoryItem(category, itemName, itemElement) {
-      if (confirm(`Are you sure you want to remove ${itemName}?`)) {
+    async function removeInventoryItem(category, itemName, itemElement) {
+      if (await customConfirm(`Are you sure you want to remove ${itemName}?`)) {
         database.ref(`inventory/${selectedStore}/${category}/${itemName}`).remove();
         itemElement.remove();
         const index = inventoryCategories[category].indexOf(itemName);
@@ -1021,8 +1130,8 @@
       }
     }
 
-    function clearSection(category) {
-      if (confirm(`Are you sure you want to clear all items in ${category}?`)) {
+    async function clearSection(category) {
+      if (await customConfirm(`Are you sure you want to clear all items in ${category}?`)) {
         const inputs = document.querySelectorAll(`#${category}-list .item-input`);
         inputs.forEach(input => {
           input.value = '';
@@ -1071,8 +1180,8 @@
         .catch(err => showPopup('Failed to copy: ' + err));
     }
 
-    function clearInventory() {
-      if (confirm('Are you sure you want to clear all inventory items? This cannot be undone.')) {
+    async function clearInventory() {
+      if (await customConfirm('Are you sure you want to clear all inventory items? This cannot be undone.')) {
         database.ref('inventory/' + selectedStore).remove()
           .then(() => {
             document.getElementById('output-content').textContent = 'Inventory cleared.';
@@ -1092,7 +1201,7 @@
     }
 
     // ------------------ ADMIN PANEL Event Listeners ------------------
-    document.getElementById('update-password-btn').addEventListener('click', function() {
+    document.getElementById('update-password-btn').addEventListener('click', async function() {
       const roleSelect = document.getElementById('password-role-select');
       const newPwdInput = document.getElementById('new-password-input');
       const selectedRole = roleSelect.value;
@@ -1102,11 +1211,10 @@
         return;
       }
       if (selectedRole === "manager") {
-        managerPassword = newPassword;
+        managerPassword = await hashPassword(newPassword);
       } else {
-        storePasswords[selectedRole] = newPassword;
+        storePasswords[selectedRole] = await hashPassword(newPassword);
       }
-      // Save updated passwords in Firebase
       database.ref('passwords').set({
         manager: managerPassword,
         store: storePasswords
@@ -1116,10 +1224,14 @@
       }).catch(err => showPopup("Error updating password: " + err.message));
     });
 
-    document.getElementById('reset-password-btn').addEventListener('click', function() {
-      if (confirm("Are you sure you want to reset all passwords to default?")) {
-        managerPassword = DEFAULT_MANAGER_PASSWORD;
-        storePasswords = { ...DEFAULT_STORE_PASSWORDS };
+    document.getElementById('reset-password-btn').addEventListener('click', async function() {
+      if (await customConfirm("Are you sure you want to reset all passwords to default?")) {
+        managerPassword = await hashPassword(DEFAULT_MANAGER_PASSWORD);
+        const newStorePasswords = {};
+        for (const store in DEFAULT_STORE_PASSWORDS) {
+          newStorePasswords[store] = await hashPassword(DEFAULT_STORE_PASSWORDS[store]);
+        }
+        storePasswords = newStorePasswords;
         database.ref('passwords').set({
           manager: managerPassword,
           store: storePasswords
@@ -1129,8 +1241,8 @@
       }
     });
 
-    document.getElementById('sign-out-all-btn').addEventListener('click', function() {
-      if (confirm("This will sign out everyone currently using the app. Proceed?")) {
+    document.getElementById('sign-out-all-btn').addEventListener('click', async function() {
+      if (await customConfirm("This will sign out everyone currently using the app. Proceed?")) {
         database.ref('global/signOutTrigger').set(Date.now())
           .then(() => showPopup("All users have been signed out."))
           .catch(error => showPopup("Error signing out users: " + error.message));
