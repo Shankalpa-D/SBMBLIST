@@ -1,0 +1,180 @@
+# Starbucks Inventory Management System
+
+This is a web-based inventory management system designed especially for Starbucks. It allows different users (Managers and Leads) to view, update, and manage inventory data for different store locations. The system uses Firebase as its database and leverages client-side authentication via custom password prompts. The inventory interface is user-friendly, and the authentication process is persistent so that you won’t have to enter your passwords on every refresh.
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [User Roles and Passwords](#user-roles-and-passwords)
+- [How to Use](#how-to-use)
+  - [Accessing the System](#accessing-the-system)
+  - [Manager Mode](#manager-mode)
+  - [Lead Mode](#lead-mode)
+  - [Switch Store](#switch-store)
+  - [Home Button](#home-button)
+- [Functions and Flow](#functions-and-flow)
+- [Firebase Configuration](#firebase-configuration)
+- [File Structure](#file-structure)
+- [Getting Started](#getting-started)
+
+---
+
+## Features
+
+- **Role Selection:**  
+  On page load, you choose your role: **Manager** or **Lead**.
+
+- **Password Prompts:**  
+  - **Manager Mode:** Requires a single password ("Access") to grant access to all stores without further prompts.  
+  - **Lead Mode:** After selecting the role, you pick a store and then must enter that store’s unique password.
+
+- **Store Selection:**  
+  You can choose between six stores:
+  - HeadHouse
+  - Mobile
+  - D
+  - Baggage
+  - Departures
+  - Connector
+
+- **Inventory Management:**  
+  - Add, update, and remove items in multiple inventory categories (e.g., milks, syrups, cups, etc.).
+  - Generate a list of current inventory.
+  - Copy the generated inventory list to your clipboard.
+  - Clear individual sections or the entire inventory.
+
+- **Notes Section:**  
+  Save notes that are stored in the database.
+
+- **Persistent Session:**  
+  Your role and store selection are saved in your browser (using localStorage), so you don’t need to reenter passwords when you refresh the page.
+
+- **Navigation Buttons:**  
+  - **Switch Store:** Easily switch to another store (with appropriate authentication if you’re in Lead mode).
+  - **Home Button:** Return to the initial role selection screen.
+
+---
+
+## User Roles and Passwords
+
+### Manager
+- **Manager Password:** `Access`  
+  - **Access:** Allows managers full access to all stores without needing further password prompts.
+
+### Lead
+In Lead mode, you first select a store, then you must enter the corresponding store password:
+
+- **HeadHouse:** `0101`
+- **Mobile:** `0000`
+- **D:** `1010`
+- **Baggage:** `1111`
+- **Departures:** `1110`
+- **Connector:** `0001`
+
+---
+
+## How to Use
+
+### Accessing the System
+
+1. Open the application in your web browser.
+2. You will see a **Role Selection** page with a Starbucks-themed background.  
+   - Two buttons are presented at the bottom: **Manager** (green) on the top and **Lead** (white with border) below.
+
+### Manager Mode
+
+1. Click the **Manager** button.
+2. A Manager Password prompt appears in a friendly card-style overlay.
+3. Enter the password: **Access**
+4. Click the check-mark (OK) button or press *Enter*.
+5. Once authenticated, you will see a store selection page. Here, you can choose any store from the available six.
+6. After selecting a store, the inventory page loads where you can manage items, generate lists, take notes, etc.
+
+### Lead Mode
+
+1. Click the **Lead** button.
+2. You will be taken directly to the Store Selection page.
+3. Choose the store you want to access.
+4. A Store Password prompt appears; enter the store’s unique password (see above for the store passwords).
+5. After successful entry, the inventory page loads with data specific to that store.
+6. If you try to switch stores from the inventory page as a Lead, you will again be prompted for the new store’s password.
+
+### Switch Store
+
+- **Managers:** Can click the "Switch Store" button (located at the top-right) without any further password prompts.
+- **Leads:** When clicking "Switch Store", you will be directed to the Store Selection page. When selecting a new store, you will be prompted for its password.
+
+### Home Button
+
+- The Home button appears on every overlay and in the main application page. Click it to reset the session and go back to the Role Selection page. This will clear any persistent session stored in your browser.
+
+---
+
+## Functions and Flow
+
+### Main Functions
+
+- **renderInventoryUI():**  
+  Dynamically creates the inventory user interface and fills it with predefined categories and items.
+
+- **loadInitialData():**  
+  Loads inventory data from Firebase for the selected store and updates the UI.
+
+- **setupNotes():**  
+  Loads and saves the notes section for the current store in real time.
+
+- **generateInventoryList():**  
+  Creates a text list of all inventory items that have a value, allowing you to review the inventory in text form.
+
+- **copyInventoryList():**  
+  Copies the generated list to your clipboard.
+
+- **clearInventory() & clearSection():**  
+  Allow clearing the entire inventory or individual sections.
+
+### Authentication Flow
+
+1. **Role Selection:**  
+   - User chooses either Manager or Lead.
+
+2. **Manager Authentication:**  
+   - Manager mode shows a password prompt.
+   - Once entered correctly, the manager selects a store (without additional password prompts).
+
+3. **Lead Authentication:**  
+   - In Lead mode, user selects a store directly.
+   - A store password prompt appears; the user must enter the correct password for that store.
+
+4. **Persistent Session:**  
+   - Upon successful authentication, the role and store are saved in localStorage.
+   - On page refresh, the stored values are used to auto-login the user and load the inventory page.
+
+---
+
+## Firebase Configuration
+
+This system uses Firebase Realtime Database to store inventory data and notes. Make sure you have set up your Firebase project and configured your `firebaseConfig` in the code. Replace the firebaseConfig values with your own if necessary.
+
+---
+
+## Passwords For Leads
+
+HeadHouse = 0101
+
+Mobile = 0000
+
+D = 1010
+
+Baggage = 1111
+
+Departures = 1110
+
+Connector = 0001
+
+
+## Passwords For Managers 
+
+Access ( capital A)
+
