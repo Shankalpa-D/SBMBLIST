@@ -26,43 +26,28 @@
       font-family: 'Roboto', sans-serif;
       line-height: 1.6;
       color: var(--dark-color);
-      background-color: var(--light-color);
       padding: 20px;
     }
-    /* ---------- Common Home Button Style ---------- */
-    .home-btn {
-      font-size: 1.5rem;
-      padding: 10px 20px;
-      margin-left: 10px;
-      background-color: var(--accent-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .home-btn:hover {
-      background-color: #0f2a22;
-    }
-    /* ---------- Overlays ---------- */
-    /* Role Selection Overlay */
+    /* ---------- Role Selection Overlay ---------- */
     #role-selection {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: url('asset/images/StarbucksLogo.jpg') no-repeat center center fixed;
+      background-size: cover;
       z-index: 10000;
     }
+    /* Place role container at the bottom in a card style */
     #role-selection .role-container {
-      background: #fff;
-      padding: 40px;
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px 40px;
       border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       text-align: center;
     }
     #role-selection h2 {
@@ -71,72 +56,78 @@
       color: var(--accent-color);
     }
     #role-selection button {
-      padding: 10px 20px;
-      margin: 10px;
+      width: 200px;
+      padding: 10px;
+      margin: 5px;
       border: none;
       border-radius: 4px;
       font-size: 1.2rem;
       cursor: pointer;
-      color: white;
       transition: background-color 0.3s ease, transform 0.3s ease;
     }
+    /* Manager button: green with white text */
     #role-selection button[data-role="manager"] {
       background-color: var(--primary-color);
+      color: #fff;
     }
+    /* Lead button: white with dark text and a border */
     #role-selection button[data-role="lead"] {
-      background-color: var(--accent-color);
+      background-color: #fff;
+      color: var(--dark-color);
+      border: 2px solid var(--accent-color);
     }
     #role-selection button:hover {
       transform: scale(1.05);
     }
-    /* Manager Password Overlay */
-    #manager-password-screen {
+    /* ---------- Password Overlays (Manager & Store) ---------- */
+    /* Both password overlays will use a semi-transparent dark background with a centered card */
+    .password-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: black;
+      background: rgba(0,0,0,0.8);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 10000;
     }
-    #manager-password-screen form {
+    .password-container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       text-align: center;
-      display: inline-flex;
-      align-items: center;
     }
-    #manager-password-screen input {
-      font-size: 2rem;
+    .password-container input {
+      font-size: 1.8rem;
       padding: 10px 20px;
-      border: none;
+      border: 1px solid #ccc;
       border-radius: 4px;
       text-align: center;
-      outline: none;
+      width: 250px;
+      margin-bottom: 20px;
     }
-    #manager-password-screen button {
-      font-size: 2rem;
-      padding: 10px;
-      margin-left: 10px;
+    .password-container button {
+      font-size: 1.8rem;
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* Specific colors for the buttons */
+    .btn-ok {
       background-color: var(--success-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      color: #fff;
     }
-    /* Home button for Manager Password Overlay */
-    #manager-home-btn {
-      font-size: 2rem;
-      padding: 10px;
-      margin-left: 10px;
+    .btn-back,
+    .btn-home {
       background-color: var(--accent-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      color: #fff;
     }
-    /* Store Selection Overlay */
+    /* ---------- Store Selection Overlay ---------- */
     #store-selection {
       position: fixed;
       top: 0;
@@ -177,88 +168,31 @@
       background-color: #004d33;
       transform: scale(1.05);
     }
-    /* Home button for Store Selection Overlay */
     #store-selection .home-btn {
       position: absolute;
       top: 10px;
       right: 10px;
-    }
-    /* Store Password Overlay (for Lead users) */
-    #store-password-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-    #store-password-screen form {
-      text-align: center;
-      display: inline-flex;
-      align-items: center;
-    }
-    #store-password-screen input {
-      font-size: 2rem;
+      font-size: 1.5rem;
       padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      text-align: center;
-      outline: none;
     }
-    #store-password-screen button {
-      font-size: 2rem;
-      padding: 10px;
-      margin-left: 10px;
-      background-color: var(--success-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    /* Home button for Store Password Overlay */
-    #store-home-btn {
-      font-size: 2rem;
-      padding: 10px;
-      margin-left: 10px;
-      background-color: var(--accent-color);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    /* ---------- Popup Message ---------- */
-    #popup-message {
-      display: none;
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 0, 0, 0.9);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 4px;
-      z-index: 11000;
-      font-size: 1rem;
-    }
-    /* ---------- Main Application Styles ---------- */
+    /* ---------- Main Application (Inventory) ---------- */
     .container {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
       position: relative;
-      display: none; /* Hidden until authentication is complete */
+      display: none; /* hidden until authenticated */
+      min-height: 100vh;
+      background: url('asset/images/Starbucks1.jpg') no-repeat center center fixed;
+      background-size: cover;
     }
-    /* Global Home Button in Main App */
+    /* Global Home Button (smaller) in Main App */
     #global-home-btn {
       position: absolute;
       top: 20px;
       left: 20px;
-      font-size: 1.5rem;
-      padding: 10px 20px;
+      font-size: 1rem;
+      padding: 5px 10px;
       background-color: var(--accent-color);
       color: white;
       border: none;
@@ -269,6 +203,29 @@
     }
     #global-home-btn:hover {
       background-color: #0f2a22;
+    }
+    /* Switch Store Button: to avoid overlapping, positioned in the top-right.
+       A media query adjusts vertical positions for narrow screens. */
+    .switch-store-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 5px 10px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease;
+    }
+    .switch-store-btn:hover {
+      background-color: #0f2a22;
+    }
+    @media (max-width: 400px) {
+      .switch-store-btn {
+        top: 70px;
+      }
     }
     h1 {
       color: var(--primary-color);
@@ -285,7 +242,7 @@
     .category {
       background-color: white;
       border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 20px;
       transition: transform 0.3s ease;
     }
@@ -406,7 +363,7 @@
       padding: 20px;
       background-color: white;
       border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       white-space: pre-wrap;
       font-family: monospace;
       min-height: 100px;
@@ -460,23 +417,28 @@
   <!-- Popup Message -->
   <div id="popup-message"></div>
 
-  <!-- Role Selection Overlay (Home screen) -->
+  <!-- Role Selection Overlay -->
   <div id="role-selection">
     <div class="role-container">
       <h2>Select Your Role</h2>
-      <button data-role="lead">Lead</button>
+      <!-- Manager on top, then Lead -->
       <button data-role="manager">Manager</button>
+      <button data-role="lead">Lead</button>
     </div>
   </div>
 
   <!-- Manager Password Overlay -->
-  <div id="manager-password-screen">
-    <form id="manager-password-form">
-      <input type="password" id="manager-password-input" placeholder="Enter Manager Password" autofocus />
-      <button type="submit">&#10004;</button>
-      <button type="button" id="manager-back-btn">Back</button>
-      <button type="button" id="manager-home-btn" class="home-btn">Home</button>
-    </form>
+  <div id="manager-password-screen" class="password-overlay">
+    <div class="password-container">
+      <h2>Manager Login</h2>
+      <form id="manager-password-form">
+        <input type="password" id="manager-password-input" placeholder="Enter Manager Password" autofocus />
+        <br />
+        <button type="submit" class="btn-ok">&#10004;</button>
+        <button type="button" id="manager-back-btn" class="btn-back">Back</button>
+        <button type="button" id="manager-home-btn" class="btn-home">Home</button>
+      </form>
+    </div>
   </div>
 
   <!-- Store Selection Overlay -->
@@ -494,13 +456,17 @@
   </div>
 
   <!-- Store Password Overlay (for Lead users only) -->
-  <div id="store-password-screen">
-    <form id="store-password-form">
-      <input type="password" id="store-password-input" placeholder="Enter store password" autofocus />
-      <button type="submit">&#10004;</button>
-      <button type="button" id="store-back-btn">Back</button>
-      <button type="button" id="store-home-btn" class="home-btn">Home</button>
-    </form>
+  <div id="store-password-screen" class="password-overlay">
+    <div class="password-container">
+      <h2>Store Login</h2>
+      <form id="store-password-form">
+        <input type="password" id="store-password-input" placeholder="Enter store password" autofocus />
+        <br />
+        <button type="submit" class="btn-ok">&#10004;</button>
+        <button type="button" id="store-back-btn" class="btn-back">Back</button>
+        <button type="button" id="store-home-btn" class="btn-home">Home</button>
+      </form>
+    </div>
   </div>
 
   <!-- Main Application Container -->
@@ -656,14 +622,12 @@
     });
 
     // ------------------ Persistent Session Check ------------------
-    // Run this before any other UI is shown
     document.addEventListener('DOMContentLoaded', function() {
       const storedRole = localStorage.getItem("userRole");
       const storedStore = localStorage.getItem("selectedStore");
       if (storedRole && storedStore) {
         currentRole = storedRole;
         selectedStore = storedStore;
-        // Hide all overlays if any are still visible
         document.getElementById('role-selection').style.display = 'none';
         document.getElementById('manager-password-screen').style.display = 'none';
         document.getElementById('store-selection').style.display = 'none';
