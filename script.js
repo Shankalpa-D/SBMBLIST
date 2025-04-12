@@ -80,7 +80,7 @@ const DEFAULT_STORE_PASSWORDS = {
   Departures: "1110",
   Connector: "0001"
 };
-const DEFAULT_ADMIN_PASSWORD = "Admin";
+const DEFAULT_ADMIN_PASSWORD = "DUWADI";
 
 // Global variables for hashed passwords
 let managerPassword = "";
@@ -456,34 +456,40 @@ function updateInventoryItem(category, itemName, value) {
   database.ref(`inventory/${selectedStore}/${category}/${itemName}`).set(value);
 }
 
-// Updated generateInventoryList function reading from UI elements
+// Updated generateInventoryList function
 function generateInventoryList() {
   let output = "";
-  const categoryDivs = document.querySelectorAll(".category");
-
-  categoryDivs.forEach(div => {
-    const headerElem = div.querySelector("h2");
-    if (!headerElem) return;
-    
-    const categoryName = headerElem.textContent;
-    let categoryOutput = categoryName + ":\n";
-    let categoryHasItems = false;
-    
-    // Read the current value from each input
-    const items = div.querySelectorAll(".item");
-    items.forEach(item => {
-      const labelElem = item.querySelector(".item-label");
-      const inputElem = item.querySelector(".item-input");
-      if (!labelElem || !inputElem) return;
+  // Define the desired category order explicitly:
+  const categoryOrder = ["milks", "syrups", "cups", "rtd", "warming", "toppings", "refresher", "coffee", "teas", "cleaning", "misc", "merch"];
+  
+  categoryOrder.forEach(category => {
+    const itemList = document.getElementById(`${category}-list`);
+    if (itemList) {
+      const categoryDiv = itemList.parentElement;
+      const headerElem = categoryDiv.querySelector("h2");
+      if (!headerElem) return;
       
-      const itemValue = inputElem.value.trim();
-      if (itemValue !== "") {
-        categoryOutput += `${labelElem.textContent}: ${itemValue}\n`;
-        categoryHasItems = true;
+      const categoryName = headerElem.textContent;
+      let categoryOutput = categoryName + ":\n";
+      let categoryHasItems = false;
+      
+      // Read the current value from each item in this category
+      const items = categoryDiv.querySelectorAll(".item");
+      items.forEach(item => {
+        const labelElem = item.querySelector(".item-label");
+        const inputElem = item.querySelector(".item-input");
+        if (!labelElem || !inputElem) return;
+        
+        const itemValue = inputElem.value.trim();
+        if (itemValue !== "") {
+          categoryOutput += `${labelElem.textContent}: ${itemValue}\n`;
+          categoryHasItems = true;
+        }
+      });
+      
+      if (categoryHasItems) {
+        output += categoryOutput + "\n";
       }
-    });
-    if (categoryHasItems) {
-      output += categoryOutput + "\n";
     }
   });
   
