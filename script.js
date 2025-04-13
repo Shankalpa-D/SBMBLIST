@@ -292,7 +292,10 @@ const inventoryCategories = {
 function renderInventoryUI() {
   const container = document.getElementById('categories-container');
   container.innerHTML = '';
-  for (const category in inventoryCategories) {
+  // Use this explicit ordering for the sections
+  const categoryOrder = ["milks", "syrups", "cups", "rtd", "warming", "toppings", "refresher", "coffee", "teas", "cleaning", "misc", "merch"];
+  
+  categoryOrder.forEach(category => {
     const categoryDiv = document.createElement('div');
     categoryDiv.className = 'category';
     const categoryTitle = document.createElement('h2');
@@ -301,10 +304,13 @@ function renderInventoryUI() {
     const itemList = document.createElement('ul');
     itemList.className = 'item-list';
     itemList.id = `${category}-list`;
+    
+    // Render default items
     inventoryCategories[category].forEach(item => {
       const listItem = createInventoryItem(category, item);
       itemList.appendChild(listItem);
     });
+    
     categoryDiv.appendChild(itemList);
     const sectionActions = document.createElement('div');
     sectionActions.className = 'section-actions';
@@ -320,9 +326,10 @@ function renderInventoryUI() {
     sectionActions.appendChild(clearButton);
     categoryDiv.appendChild(sectionActions);
     container.appendChild(categoryDiv);
-  }
+  });
 }
 
+// Modified loadInitialData to persist custom items
 function loadInitialData() {
   database.ref('inventory/' + selectedStore).once('value').then((snapshot) => {
     const data = snapshot.val();
@@ -330,13 +337,21 @@ function loadInitialData() {
       for (const category in data) {
         const itemList = document.getElementById(`${category}-list`);
         if (itemList) {
-          for (const itemName in data[category]) {
-            const itemValue = data[category][itemName];
-            const input = itemList.querySelector(`input[data-item="${itemName}"]`);
+          Object.keys(data[category]).forEach(itemName => {
+            const value = data[category][itemName];
+            let input = itemList.querySelector(`input[data-item="${itemName}"]`);
             if (input) {
-              input.value = itemValue;
+              // Update the quantity if element exists
+              input.value = value;
+            } else {
+              // Create the item element if it doesn't exist (persist custom items)
+              const newItem = createInventoryItem(category, itemName, value);
+              itemList.appendChild(newItem);
+              if (!inventoryCategories[category].includes(itemName)) {
+                inventoryCategories[category].push(itemName);
+              }
             }
-          }
+          });
         }
       }
     }
@@ -347,7 +362,7 @@ function loadInitialData() {
     const itemList = document.getElementById(`${category}-list`);
     if (itemList) {
       for (const itemName in data) {
-        const itemValue = data[category][itemName];
+        const itemValue = data[itemName];
         const input = itemList.querySelector(`input[data-item="${itemName}"]`);
         if (input) {
           input.value = itemValue;
@@ -442,7 +457,7 @@ async function removeInventoryItem(category, itemName, itemElement) {
 }
 
 async function clearSection(category) {
-  if (await customConfirm(`Are you sure you want to clear all items in ${category}?`)) {
+  if (await customConfirm(`Are you sure you want to clear all quantities in ${category}?`)) {
     const inputs = document.querySelectorAll(`#${category}-list .item-input`);
     inputs.forEach(input => {
       input.value = '';
@@ -456,7 +471,7 @@ function updateInventoryItem(category, itemName, value) {
   database.ref(`inventory/${selectedStore}/${category}/${itemName}`).set(value);
 }
 
-// Updated generateInventoryList function
+// Updated generateInventoryList function that reads the DOM order
 function generateInventoryList() {
   let output = "";
   // Define the desired category order explicitly:
@@ -473,7 +488,7 @@ function generateInventoryList() {
       let categoryOutput = categoryName + ":\n";
       let categoryHasItems = false;
       
-      // Read the current value from each item in this category
+      // Read the current value from each item in this category based on DOM order
       const items = categoryDiv.querySelectorAll(".item");
       items.forEach(item => {
         const labelElem = item.querySelector(".item-label");
@@ -496,15 +511,36 @@ function generateInventoryList() {
   document.getElementById("output-content").textContent = output || "No items in inventory.";
 }
 
+// Modified copyInventoryList uses a fallback method if needed
 function copyInventoryList() {
   const outputContent = document.getElementById('output-content').textContent;
   if (outputContent.trim() === '') {
     showPopup('Please generate a list first.');
     return;
   }
-  navigator.clipboard.writeText(outputContent)
-    .then(() => showPopup('List copied to clipboard!'))
-    .catch(err => showPopup('Failed to copy: ' + err));
+  
+  // Use Clipboard API if available and secure; otherwise, use fallback
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(outputContent)
+      .then(() => showPopup('List copied to clipboard!'))
+      .catch(err => showPopup('Failed to copy: ' + err));
+  } else {
+    // Fallback for insecure context
+    let textArea = document.createElement("textarea");
+    textArea.value = outputContent;
+    textArea.style.position = "fixed";
+    textArea.style.top = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showPopup('List copied to clipboard!');
+    } catch (err) {
+      showPopup('Failed to copy: ' + err);
+    }
+    document.body.removeChild(textArea);
+  }
 }
 
 async function clearInventory() {
