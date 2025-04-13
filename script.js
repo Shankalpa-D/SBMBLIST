@@ -219,6 +219,7 @@ document.querySelectorAll('#store-selection .store-btn').forEach(btn => {
 /**************************************/
 /*           inventory.js             */
 /**************************************/
+// Default inventory items are defined here
 const inventoryCategories = {
   milks: [
     "2%", "Whole Milk", "Nonfat", "Half n Half", "Heavy Cream",
@@ -289,10 +290,12 @@ const inventoryCategories = {
   ]
 };
 
+// Updated renderInventoryUI now builds each category by merging default items with Firebase data,
+// ensuring that custom added items are permanently stored and visible to all users.
 function renderInventoryUI() {
   const container = document.getElementById('categories-container');
   container.innerHTML = '';
-  // Use this explicit ordering for the sections
+  // Explicit ordering of categories
   const categoryOrder = ["milks", "syrups", "cups", "rtd", "warming", "toppings", "refresher", "coffee", "teas", "cleaning", "misc", "merch"];
   
   categoryOrder.forEach(category => {
@@ -305,10 +308,24 @@ function renderInventoryUI() {
     itemList.className = 'item-list';
     itemList.id = `${category}-list`;
     
-    // Render default items
-    inventoryCategories[category].forEach(item => {
-      const listItem = createInventoryItem(category, item);
-      itemList.appendChild(listItem);
+    // Retrieve Firebase data for this category and merge with default items
+    database.ref(`inventory/${selectedStore}/${category}`).once('value').then(snapshot => {
+      let firebaseData = snapshot.val();
+      let firebaseItems = firebaseData ? Object.keys(firebaseData) : [];
+      let defaultItems = inventoryCategories[category] || [];
+      // Create a union of default items and any custom added items from Firebase.
+      let combinedItems = [...defaultItems];
+      firebaseItems.forEach(item => {
+        if (!combinedItems.includes(item)) {
+          combinedItems.push(item);
+        }
+      });
+      // Render each item
+      combinedItems.forEach(item => {
+         let value = (firebaseData && firebaseData[item]) ? firebaseData[item] : '';
+         let listItem = createInventoryItem(category, item, value);
+         itemList.appendChild(listItem);
+      });
     });
     
     categoryDiv.appendChild(itemList);
@@ -329,43 +346,17 @@ function renderInventoryUI() {
   });
 }
 
-// Modified loadInitialData to persist custom items
+// Retained loadInitialData to update quantities in real time.
 function loadInitialData() {
-  database.ref('inventory/' + selectedStore).once('value').then((snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      for (const category in data) {
-        const itemList = document.getElementById(`${category}-list`);
-        if (itemList) {
-          Object.keys(data[category]).forEach(itemName => {
-            const value = data[category][itemName];
-            let input = itemList.querySelector(`input[data-item="${itemName}"]`);
-            if (input) {
-              // Update the quantity if element exists
-              input.value = value;
-            } else {
-              // Create the item element if it doesn't exist (persist custom items)
-              const newItem = createInventoryItem(category, itemName, value);
-              itemList.appendChild(newItem);
-              if (!inventoryCategories[category].includes(itemName)) {
-                inventoryCategories[category].push(itemName);
-              }
-            }
-          });
-        }
-      }
-    }
-  });
   database.ref('inventory/' + selectedStore).on('child_changed', (snapshot) => {
     const category = snapshot.key;
     const data = snapshot.val();
     const itemList = document.getElementById(`${category}-list`);
     if (itemList) {
       for (const itemName in data) {
-        const itemValue = data[itemName];
         const input = itemList.querySelector(`input[data-item="${itemName}"]`);
         if (input) {
-          input.value = itemValue;
+          input.value = data[itemName];
         }
       }
     }
@@ -438,6 +429,7 @@ async function addNewItem(category) {
     const itemList = document.getElementById(`${category}-list`);
     const newItem = createInventoryItem(category, newItemName);
     itemList.appendChild(newItem);
+    // Save the new custom item in Firebase so it is shared across users
     database.ref(`inventory/${selectedStore}/${category}/${newItemName}`).set('');
     if (!inventoryCategories[category].includes(newItemName)) {
       inventoryCategories[category].push(newItemName);
@@ -623,6 +615,7 @@ function updateHeadingAndLoadData(store) {
   const headingText = (currentRole === "manager" ? "Manager" : "Lead") + " - " + store + " Inventory Management";
   document.getElementById('main-heading').textContent = headingText;
   document.getElementById('main-container').style.display = 'block';
+  // Build the UI using the union of default and stored custom items
   renderInventoryUI();
   loadInitialData();
   setupNotes();
